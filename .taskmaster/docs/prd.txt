@@ -1,0 +1,97 @@
+Messenger App – Parallel Development PRD with Early Deployment
+Stack: Vapor (Backend) + iOS (Client, Swift)
+Deployment Target: After Iteration 1, then continuous
+1. Key Changes from Previous Plan
+Backend deployed at the end of Iteration 1 with HTTPS and public API.
+iOS client will connect to live server immediately (no localhost).
+After each iteration, backend updates are deployed to staging/production.
+2. Development Plan by Iterations
+Iteration 1 — Authentication + Deployment
+Backend
+Setup Vapor project + PostgreSQL schema (users table).
+Implement:
+POST /auth/register
+POST /auth/login
+JWT auth middleware
+Configure CORS for iOS app requests.
+Deployment:
+Choose hosting:
+Render (easy, auto SSL)
+Railway.app
+Fly.io
+Setup managed PostgreSQL (from host or external provider like Supabase).
+Use environment variables for secrets.
+Deploy with Docker or host build process.
+Test API endpoints via Postman from outside local network.
+iOS
+Create Xcode project.
+Build Sign Up and Login screens.
+Implement APIClient for /auth/register and /auth/login.
+Store JWT tokens in Keychain.
+Navigate to empty conversation list after login.
+Deliverable:
+✅ Users can sign up & log in from anywhere via live backend.
+Iteration 2 — Real-Time Messaging
+Backend
+Create conversations, messages, conversation_participants.
+REST:
+GET /conversations
+GET /messages?conversationId=xxx
+WebSocket /ws:
+Token auth on connect.
+Handle message.send → save → broadcast message.created.
+iOS
+Implement local DB (GRDB/Core Data) for messages.
+Build chat list and chat view UIs.
+WebSocket manager: connect after login, send/receive messages.
+Save messages locally, update UI instantly.
+Deliverable:
+✅ Two devices can exchange messages in real-time over the deployed backend.
+Iteration 3 — Delivery & Read Receipts
+Backend
+Add message_deliveries table.
+On send: store delivered timestamp.
+Handle message.read → update read timestamp.
+iOS
+Add delivery/read indicators in chat UI.
+Send message.read event when message is viewed.
+Deliverable:
+✅ Delivery/read status visible for all messages.
+Iteration 4 — Push Notifications
+Backend
+Create devices table.
+/devices/register for APNs token.
+Send push via APNs when recipient offline.
+iOS
+Register for push notifications.
+Send device token to backend.
+Handle push to open chat & fetch new messages.
+Deliverable:
+✅ Offline device gets push notification for new messages.
+Iteration 5 — Presence
+Backend
+Track online users via WS connections (in memory/Redis).
+Broadcast user.presence events.
+iOS
+Show online/offline status in UI.
+Update in real-time.
+Deliverable:
+✅ Users see online/offline changes instantly.
+Iteration 6 — Offline Sync
+Backend
+Add GET /sync/messages?since=timestamp.
+iOS
+On reconnect, call sync endpoint to fetch missed messages.
+Merge into local DB.
+Deliverable:
+✅ App recovers missed messages after offline periods.
+3. Deployment Flow
+End of Iteration 1: First deployment with Auth APIs.
+After each iteration: Deploy updated backend to same environment.
+Maintain staging (for testing) and production (for real use) environments if needed.
+Use migrations for DB schema changes between iterations.
+4. Why Deploy Early
+iOS app development tests against real network conditions.
+You avoid local network constraints (no ngrok hacks).
+Forces you to think about security, SSL, and scaling from day one.
+Easier to test with multiple devices in different locations.

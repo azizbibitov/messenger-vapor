@@ -1,0 +1,697 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 31,
+        "title": "Backend Core Setup & Authentication",
+        "description": "Set up Vapor project, define PostgreSQL schema for users, implement user registration and login endpoints with JWT authentication, and configure CORS.",
+        "details": "Vapor project initialization, `users` table creation, `POST /auth/register`, `POST /auth/login` API implementation, JWT token generation and validation middleware, CORS configuration for iOS client requests.",
+        "testStrategy": "Unit tests for authentication logic, integration tests for API endpoints using Postman/cURL, verify JWT generation and validation.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "in-progress",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Vapor Project Initialization & Basic Setup",
+            "description": "Initialize the Vapor project, set up the basic application structure, and configure initial dependencies for the backend.",
+            "dependencies": [],
+            "details": "Use `vapor new` command to create the project. Configure `Package.swift` for Vapor and Fluent. Set up `configure.swift` and `app.swift` for basic server startup and routing.\n<info added on 2025-08-08T17:57:31.601Z>\nImplementation plan for Vapor project initialization:\n\n- Create project directory structure under `backend/` in the repo\n- Initialize a SwiftPM executable package to verify local Swift toolchain\n- Next, add Vapor dependencies to `Package.swift` and wire up `configure.swift` and `routes.swift`\n- Add base health route GET /health for smoke testing\n- Prepare local `.env` sample for `DATABASE_URL` and `JWT_SECRET`\n- Verify build locally; commit initial scaffold\n\nCommands to run:\n- mkdir -p backend && cd backend\n- swift package init --type executable --name MessengerBackend\n- swift build\n\nOutcome:\n- A compiling Swift package in `backend/` ready to add Vapor\n- Next step in this subtask: add Vapor dependency and minimal bootstrap (will follow immediately after skeleton is in place)\n</info added on 2025-08-08T17:57:31.601Z>",
+            "status": "in-progress",
+            "testStrategy": "Verify the Vapor server starts successfully and a basic 'Hello, world!' route is accessible via a web browser or cURL."
+          },
+          {
+            "id": 2,
+            "title": "User Data Model & Database Migration",
+            "description": "Define the `User` data model using Fluent ORM and create the necessary PostgreSQL schema for users through database migrations.",
+            "dependencies": [
+              "31.1"
+            ],
+            "details": "Create a `User` model conforming to `Content`, `Model`, and `Authenticatable`. Implement a `UserMigration` to create the `users` table with fields such as `id`, `username`, and `password_hash`. Configure Fluent to connect to PostgreSQL.",
+            "status": "pending",
+            "testStrategy": "Run database migrations and verify that the `users` table is created correctly in the PostgreSQL database. Write unit tests for the `User` model's properties and relationships."
+          },
+          {
+            "id": 3,
+            "title": "User Registration Endpoint Implementation",
+            "description": "Implement the API endpoint for new user registration, including secure password hashing and saving user data to the database.",
+            "dependencies": [
+              "31.2"
+            ],
+            "details": "Create a `AuthRegisterRequest` DTO for incoming registration data. Implement the `POST /auth/register` route. Hash the user's password using Bcrypt before saving the new user to the `users` table.",
+            "status": "pending",
+            "testStrategy": "Perform integration tests on `POST /auth/register` with valid and invalid data using Postman/cURL. Verify that a new user is created in the database with a securely hashed password. Unit tests for password hashing logic."
+          },
+          {
+            "id": 4,
+            "title": "User Login Endpoint & JWT Generation",
+            "description": "Implement the API endpoint for user login, authenticate user credentials, and generate a JSON Web Token (JWT) upon successful authentication.",
+            "dependencies": [
+              "31.3"
+            ],
+            "details": "Create an `AuthLoginRequest` DTO for login credentials. Implement the `POST /auth/login` route. Verify user credentials against the stored hashed password. Generate a JWT containing the user's ID and return it to the client upon successful login.",
+            "status": "pending",
+            "testStrategy": "Perform integration tests on `POST /auth/login` with correct and incorrect credentials. Verify that a valid JWT is returned for successful logins and appropriate error responses for failures. Unit tests for JWT generation logic."
+          },
+          {
+            "id": 5,
+            "title": "JWT Authentication Middleware & CORS Configuration",
+            "description": "Implement middleware for validating JWTs on protected routes and configure Cross-Origin Resource Sharing (CORS) to allow requests from the iOS client.",
+            "dependencies": [
+              "31.4"
+            ],
+            "details": "Create a `JWTAuthenticationMiddleware` to validate incoming JWTs and authenticate users for subsequent requests on protected routes. Apply this middleware to relevant API groups. Configure CORS middleware in `configure.swift` to allow requests from the iOS client's origin.",
+            "status": "pending",
+            "testStrategy": "Perform integration tests on a protected route using valid, invalid, and missing JWTs to verify access control. Test API requests from an iOS client (or simulated origin) to ensure CORS headers are correctly applied and requests are not blocked due to cross-origin policies."
+          }
+        ]
+      },
+      {
+        "id": 32,
+        "title": "Backend Deployment Infrastructure",
+        "description": "Select a hosting provider, set up managed PostgreSQL, configure environment variables for secrets, and establish the initial deployment process for the Vapor backend.",
+        "details": "Research Render/Railway/Fly.io, provision PostgreSQL instance (e.g., Supabase), define and use environment variables (e.g., `JWT_SECRET`, `DATABASE_URL`), set up Dockerfile or host-specific build process, deploy and verify public API access.",
+        "testStrategy": "Deploy to staging environment, test all /auth endpoints from outside local network, verify HTTPS and database connectivity.",
+        "priority": "high",
+        "dependencies": [
+          31
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Research and Select Hosting Provider",
+            "description": "Evaluate potential hosting providers (e.g., Render, Railway, Fly.io) based on cost, features, ease of use for Vapor/PostgreSQL, and select the most suitable one.",
+            "dependencies": [],
+            "details": "Compare pricing models, managed PostgreSQL offerings, Docker/build process support, and developer experience for Vapor applications. Document the chosen provider and rationale.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Provision Managed PostgreSQL Instance",
+            "description": "Set up a managed PostgreSQL database instance with the selected hosting provider or a third-party service (e.g., Supabase).",
+            "dependencies": [
+              "32.1"
+            ],
+            "details": "Create a new PostgreSQL database, configure initial settings, and obtain connection credentials (host, port, user, password, database name).",
+            "status": "pending",
+            "testStrategy": "Verify connectivity to the database from a local client (e.g., psql or a GUI tool)."
+          },
+          {
+            "id": 3,
+            "title": "Configure Environment Variables for Secrets",
+            "description": "Define and securely configure environment variables for sensitive information such as database connection strings (`DATABASE_URL`) and application secrets (`JWT_SECRET`) within the chosen hosting environment.",
+            "dependencies": [
+              "32.1",
+              "32.2"
+            ],
+            "details": "Use the hosting provider's secret management system to store `DATABASE_URL` (or its components) and `JWT_SECRET`. Ensure these variables are accessible to the deployed Vapor application.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Establish Initial Deployment Process",
+            "description": "Prepare the Vapor backend application for deployment by creating a Dockerfile or configuring the host-specific build process required by the selected hosting provider.",
+            "dependencies": [
+              "32.1",
+              "32.3"
+            ],
+            "details": "Create a `Dockerfile` for containerization or configure the build commands/scripts specific to the chosen provider (e.g., `Procfile` for Render/Railway). Ensure the build process correctly compiles and packages the Vapor application.",
+            "status": "pending",
+            "testStrategy": "Successfully build the Docker image locally or trigger a successful build on the hosting platform without deployment."
+          },
+          {
+            "id": 5,
+            "title": "Deploy Backend and Verify Public API Access",
+            "description": "Perform the initial deployment of the Vapor backend to the chosen hosting provider and verify that public API endpoints are accessible and functional.",
+            "dependencies": [
+              "32.4"
+            ],
+            "details": "Trigger the deployment process. Once deployed, test core API endpoints (e.g., `/auth/register`, `/auth/login` from Task 31) from outside the local network to confirm public access, HTTPS, and database connectivity.",
+            "status": "pending",
+            "testStrategy": "Deploy to staging environment, test all /auth endpoints from outside local network, verify HTTPS and database connectivity."
+          }
+        ]
+      },
+      {
+        "id": 33,
+        "title": "iOS Authentication Client",
+        "description": "Create the iOS Xcode project, build user sign-up and login screens, implement API client for authentication, and securely store JWT tokens.",
+        "details": "Xcode project setup, UI/UX design for `Sign Up` and `Login` views, Swift `APIClient` for `POST /auth/register` and `POST /auth/login`, secure storage of JWT in Keychain, navigation to a placeholder view upon successful login.",
+        "testStrategy": "Manual testing of sign-up/login flows, verify token storage in Keychain, ensure navigation works correctly with the live backend.",
+        "priority": "high",
+        "dependencies": [
+          31,
+          32
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "iOS Project Setup",
+            "description": "Create the Xcode project, configure basic settings, and establish the initial project structure for the iOS authentication client.",
+            "dependencies": [],
+            "details": "Create the iOS Xcode project, configure basic app settings (e.g., bundle ID, display name), and set up initial file structure (e.g., folders for Views, ViewModels, Services, Networking).",
+            "status": "pending",
+            "testStrategy": "Verify the project compiles successfully without errors and runs on a simulator or device, displaying a blank initial screen."
+          },
+          {
+            "id": 2,
+            "title": "Authentication UI Development",
+            "description": "Design and implement the user interface for both the sign-up and login screens.",
+            "dependencies": [
+              "33.1"
+            ],
+            "details": "Build the `Sign Up` and `Login` views using SwiftUI or UIKit, including necessary input fields for username/email and password, along with corresponding action buttons. Ensure basic UI/UX design principles are followed.",
+            "status": "pending",
+            "testStrategy": "Manually verify that all UI elements are present, correctly laid out, and respond appropriately to user interactions (e.g., keyboard appearance, text input)."
+          },
+          {
+            "id": 3,
+            "title": "API Client for Authentication Endpoints",
+            "description": "Implement the Swift API client responsible for interacting with the backend authentication endpoints for registration and login.",
+            "dependencies": [
+              "33.1"
+            ],
+            "details": "Create a Swift `APIClient` class or struct capable of making `POST` requests to `/auth/register` and `/auth/login` endpoints. Implement robust request/response serialization and deserialization (e.g., JSON encoding/decoding) and basic error handling.",
+            "status": "pending",
+            "testStrategy": "Use mock data or a local test server to verify the API client can correctly form requests and parse responses for both registration and login operations."
+          },
+          {
+            "id": 4,
+            "title": "Secure JWT Storage and Retrieval",
+            "description": "Implement secure storage of JWT tokens in the iOS Keychain and provide methods for their retrieval and deletion.",
+            "dependencies": [
+              "33.3"
+            ],
+            "details": "Utilize `KeychainServices` to securely store the received JWT token after successful registration or login. Implement methods to retrieve the token for subsequent authenticated API calls and to securely delete it upon user logout.",
+            "status": "pending",
+            "testStrategy": "After a successful login/signup, verify the token is stored in Keychain. After app restart, verify the token can be retrieved. Implement a logout flow and verify the token is correctly removed from Keychain."
+          },
+          {
+            "id": 5,
+            "title": "Integrate Authentication Flow and Navigation",
+            "description": "Connect the UI, API client, and token storage to create a complete authentication flow, including navigation upon success.",
+            "dependencies": [
+              "33.2",
+              "33.3",
+              "33.4"
+            ],
+            "details": "Integrate the `Sign Up` and `Login` UIs with the `APIClient` calls. Upon successful authentication, securely store the JWT token and navigate the user to a placeholder view. Implement error handling to display appropriate messages for failed attempts.",
+            "status": "pending",
+            "testStrategy": "Perform manual testing of the full sign-up and login flows with a live backend. Verify successful navigation to the placeholder view. Test with invalid credentials to ensure error messages are displayed correctly. Verify token persistence across app launches and proper logout functionality."
+          }
+        ]
+      },
+      {
+        "id": 34,
+        "title": "Backend Real-Time Messaging Core",
+        "description": "Design and implement database schemas for conversations, messages, and participants, create REST endpoints for fetching conversations and messages, and establish WebSocket handling for real-time message exchange.",
+        "details": "`conversations`, `messages`, `conversation_participants` table creation. `GET /conversations`, `GET /messages?conversationId=xxx` REST APIs. WebSocket endpoint `/ws` with token authentication, message saving, and broadcasting `message.created` events.",
+        "testStrategy": "Unit tests for data models, integration tests for REST endpoints, WebSocket client testing (e.g., Postman/websocat) for connection, send, and receive.",
+        "priority": "high",
+        "dependencies": [
+          32
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement Database Schemas for Messaging",
+            "description": "Create the necessary database tables (`conversations`, `messages`, `conversation_participants`) and define their relationships and columns.",
+            "dependencies": [],
+            "details": "Define `conversations` table (e.g., `id`, `name`, `type`), `messages` table (e.g., `id`, `conversation_id`, `sender_id`, `content`, `timestamp`), and `conversation_participants` table (e.g., `conversation_id`, `user_id`). Implement migrations or schema definition in code.",
+            "status": "pending",
+            "testStrategy": "Unit tests for data model definitions and basic CRUD operations on the tables."
+          },
+          {
+            "id": 2,
+            "title": "Implement REST Endpoints for Conversations and Messages",
+            "description": "Create API endpoints to fetch lists of conversations and messages within a specific conversation.",
+            "dependencies": [
+              "34.1"
+            ],
+            "details": "Implement `GET /conversations` to list all conversations a user is part of, and `GET /messages?conversationId=xxx` to retrieve messages for a given conversation ID. Include pagination if necessary.",
+            "status": "pending",
+            "testStrategy": "Integration tests for `GET /conversations` and `GET /messages` endpoints using mock data or actual database entries."
+          },
+          {
+            "id": 3,
+            "title": "Establish WebSocket Server with Token Authentication",
+            "description": "Configure the WebSocket endpoint, implement token-based authentication for incoming connections, and manage active WebSocket sessions.",
+            "dependencies": [],
+            "details": "Create `/ws` WebSocket endpoint. Implement middleware or logic to validate JWT tokens from connection headers/query parameters. Store active connections, mapping user IDs to WebSocket sessions.",
+            "status": "pending",
+            "testStrategy": "WebSocket client testing (e.g., Postman, websocat) to verify successful connection with valid tokens and rejection with invalid/missing tokens."
+          },
+          {
+            "id": 4,
+            "title": "Implement Real-Time Message Saving and Broadcasting",
+            "description": "Develop the logic for receiving new messages via WebSocket, saving them to the database, and broadcasting `message.created` events to relevant participants.",
+            "dependencies": [
+              "34.1",
+              "34.3"
+            ],
+            "details": "On receiving a message via WebSocket, validate content, save to the `messages` table. Identify participants of the conversation and broadcast the `message.created` event (containing the new message data) to their active WebSocket sessions.",
+            "status": "pending",
+            "testStrategy": "WebSocket client testing: send a message from one client, verify it's saved in DB, and received by other connected clients in the same conversation."
+          },
+          {
+            "id": 5,
+            "title": "Conduct Comprehensive Testing and Refinement",
+            "description": "Perform unit, integration, and end-to-end tests for all implemented components (database models, REST APIs, WebSocket functionality) and refine based on test results.",
+            "dependencies": [
+              "34.1",
+              "34.2",
+              "34.3",
+              "34.4"
+            ],
+            "details": "Execute unit tests for data models. Run integration tests for REST endpoints. Use WebSocket clients to simulate multiple users, send messages, verify real-time updates, and test connection/disconnection scenarios. Document API endpoints and WebSocket event formats.",
+            "status": "pending",
+            "testStrategy": "Unit tests for data models, integration tests for REST endpoints, WebSocket client testing (e.g., Postman/websocat) for connection, send, and receive."
+          }
+        ]
+      },
+      {
+        "id": 35,
+        "title": "iOS Real-Time Messaging UI & WS Integration",
+        "description": "Implement local database for messages, build chat list and chat view UIs, integrate WebSocket manager for real-time communication, and ensure instant UI updates.",
+        "details": "Choose and integrate local DB (GRDB/Core Data), develop `Chat List` and `Chat View` UIs, create `WebSocketManager` to connect after login, send messages via WS, receive and save messages locally, update UI instantly.",
+        "testStrategy": "Manual testing of chat list/view, send/receive messages between two devices, verify local message persistence and real-time UI updates.",
+        "priority": "high",
+        "dependencies": [
+          33,
+          34
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Local Database Integration & Schema Definition",
+            "description": "Choose a local persistence framework (GRDB or Core Data) and integrate it into the project. Define the necessary database schemas for storing conversations and individual messages locally. This forms the foundational layer for persistent message storage.",
+            "dependencies": [],
+            "details": "Research and select between GRDB and Core Data. Set up the chosen framework within the iOS project. Define data models/schemas for 'Conversation' (e.g., id, lastMessageText, lastMessageTimestamp, participants) and 'Message' (e.g., id, conversationId, senderId, text, timestamp, status, type). Implement basic CRUD operations for these entities.",
+            "status": "pending",
+            "testStrategy": "Unit tests for database setup and schema integrity. Manual verification of data persistence by saving and retrieving dummy data."
+          },
+          {
+            "id": 2,
+            "title": "Chat List UI Implementation",
+            "description": "Develop the user interface for displaying a list of ongoing conversations. This UI should fetch and display conversation summaries from the local database, allowing users to select a conversation to view its messages.",
+            "dependencies": [
+              "35.1"
+            ],
+            "details": "Design and implement the 'Chat List' screen using a UITableView or UICollectionView. Populate the list by fetching existing conversations from the local database. Display relevant information for each conversation (e.g., participant names, last message snippet, timestamp). Implement navigation from a selected conversation to the 'Chat View' screen.",
+            "status": "pending",
+            "testStrategy": "Manual testing of UI layout and responsiveness. Verify that conversations are correctly fetched and displayed from the local DB. Test navigation to chat view."
+          },
+          {
+            "id": 3,
+            "title": "Chat View UI & Local Message Display",
+            "description": "Implement the user interface for a specific chat conversation, displaying messages exchanged within that conversation. This subtask also includes setting up the input mechanism for composing and sending new messages, initially saving them locally.",
+            "dependencies": [
+              "35.1",
+              "35.2"
+            ],
+            "details": "Design and implement the 'Chat View' screen using a UITableView or UICollectionView for message display. Implement an input text field and a 'Send' button. Fetch and display messages for the selected conversation from the local database. When a message is composed and sent, save it immediately to the local database with a 'sending' status.",
+            "status": "pending",
+            "testStrategy": "Manual testing of UI layout, message display, and input field functionality. Verify that messages are correctly fetched and displayed. Test that new messages are saved locally upon sending."
+          },
+          {
+            "id": 4,
+            "title": "WebSocket Manager & Outgoing Message Handling",
+            "description": "Create a dedicated `WebSocketManager` class responsible for establishing and maintaining a WebSocket connection with the backend after user login. Implement the logic for sending messages from the client to the server via this WebSocket connection.",
+            "dependencies": [
+              "35.3"
+            ],
+            "details": "Implement a `WebSocketManager` singleton. Handle WebSocket connection establishment and reconnection logic. Integrate with the authentication flow to connect after successful login. Implement a method within `WebSocketManager` to send message payloads (e.g., JSON) to the backend. Connect the 'Send' button in the 'Chat View' to this WebSocket sending mechanism, updating local message status to 'sent' upon successful transmission confirmation.",
+            "status": "pending",
+            "testStrategy": "Unit tests for WebSocket connection lifecycle. Manual testing of sending messages from the UI and verifying they reach the backend (e.g., via backend logs or another client)."
+          },
+          {
+            "id": 5,
+            "title": "Real-Time Message Reception & UI Sync",
+            "description": "Implement the logic within the `WebSocketManager` to receive incoming messages from the WebSocket. Upon reception, messages must be saved to the local database and the relevant chat UI (Chat View) must be updated instantly to reflect the new message.",
+            "dependencies": [
+              "35.1",
+              "35.3",
+              "35.4"
+            ],
+            "details": "Implement WebSocket delegate methods to handle incoming message events. Parse the received message data. Save the new message to the local database. Utilize database observation mechanisms (e.g., NSFetchedResultsController, Combine/RxSwift with GRDB) to automatically update the 'Chat View' UI when new messages are saved locally. Ensure smooth scrolling and UI performance during real-time updates. Handle updates for 'Chat List' (e.g., last message preview).",
+            "status": "pending",
+            "testStrategy": "Manual testing with two devices/clients sending messages to each other. Verify instant UI updates in both 'Chat View' and 'Chat List'. Verify message persistence in local DB after receiving. Test edge cases like network disconnections and reconnections."
+          }
+        ]
+      },
+      {
+        "id": 36,
+        "title": "Delivery & Read Receipts Implementation",
+        "description": "Extend the backend to track message delivery and read status, and update the iOS client to display these indicators and send read events.",
+        "details": "Backend: `message_deliveries` table, store `delivered` timestamp on send, handle `message.read` event to update `read` timestamp. iOS: Add delivery/read indicators (e.g., single/double checkmarks, eye icon) in chat UI, send `message.read` event when a message is viewed.",
+        "testStrategy": "Manual testing: send message, verify delivery indicator; open chat, verify read indicator on sender's side.",
+        "priority": "medium",
+        "dependencies": [
+          34,
+          35
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Backend - Message Status Schema & Delivery Logic",
+            "description": "Modify the `messages` table to include `delivered_at` and `read_at` timestamp columns. Update the message sending logic to set `delivered_at` when a message is successfully processed and stored, and broadcast this delivery status to the sender.",
+            "dependencies": [],
+            "details": "Add `delivered_at TIMESTAMP NULL` and `read_at TIMESTAMP NULL` to the `messages` table. In the message creation endpoint/WebSocket handler, set `delivered_at = NOW()` upon successful persistence. Broadcast a `message.delivered` event to the sender's client via WebSocket.",
+            "status": "pending",
+            "testStrategy": "Unit tests for schema migration. Integration tests for message sending, verifying `delivered_at` is set in DB and `message.delivered` event is broadcast."
+          },
+          {
+            "id": 2,
+            "title": "Backend - Read Receipt Event Handling & Broadcasting",
+            "description": "Implement a WebSocket handler for `message.read` events from clients. Upon receiving, update the `read_at` timestamp for the specified message in the database and broadcast a `message.read` event to the sender.",
+            "dependencies": [
+              "36.1"
+            ],
+            "details": "Create a new WebSocket message type handler for `message.read` events. Validate message ID and user permissions. Update `messages.read_at` for the given message ID. Broadcast a `message.read` event (e.g., `{ type: 'message.read', messageId: '...', readAt: '...' }`) to the sender's active WebSocket session.",
+            "status": "pending",
+            "testStrategy": "Integration tests: send `message.read` event via WebSocket, verify `read_at` in DB, verify sender receives `message.read` broadcast."
+          },
+          {
+            "id": 3,
+            "title": "iOS Client - Send Read Events",
+            "description": "Implement logic in the iOS chat view to detect when messages become visible to the user and send `message.read` events to the backend via WebSocket for unread messages.",
+            "dependencies": [
+              "36.2"
+            ],
+            "details": "In `ChatViewController`, observe `UITableView` or `UICollectionView` scroll events. When a message cell enters the visible rect and is an unread message from the other user, send a `message.read` WebSocket event (e.g., `{ type: 'message.read', messageId: '...' }`). Debounce or batch these events to avoid excessive network traffic.",
+            "status": "pending",
+            "testStrategy": "Manual testing: open a chat with unread messages, verify network traffic shows `message.read` events being sent."
+          },
+          {
+            "id": 4,
+            "title": "iOS Client - Display Delivery Indicators",
+            "description": "Update the iOS chat UI to display delivery indicators (e.g., single checkmark for sent, double checkmark for delivered) based on message status.",
+            "dependencies": [
+              "36.1"
+            ],
+            "details": "Modify `MessageCell` to include an icon for delivery status. Update message models to store `delivered_at` status. On receiving `message.delivered` WebSocket events or when fetching messages, update the UI to show the appropriate indicator. Initially, show a pending indicator, then a single checkmark for sent, then a double checkmark for delivered.",
+            "status": "pending",
+            "testStrategy": "Manual testing: send a message, verify the indicator changes from pending to single checkmark, then to double checkmark when delivered."
+          },
+          {
+            "id": 5,
+            "title": "iOS Client - Display Read Indicators & Real-time Updates",
+            "description": "Update the iOS chat UI to display read indicators (e.g., blue double checkmark or eye icon) and update these indicators in real-time based on `message.read` events from the backend.",
+            "dependencies": [
+              "36.2",
+              "36.4"
+            ],
+            "details": "Modify `MessageCell` to include an icon for read status, potentially overriding the delivered icon. Update message models to store `read_at` status. On receiving `message.read` WebSocket events, update the UI for the corresponding message to show the read indicator.",
+            "status": "pending",
+            "testStrategy": "Manual testing: send a message, have recipient open chat, verify sender's UI updates to show read indicator instantly."
+          }
+        ]
+      },
+      {
+        "id": 37,
+        "title": "Push Notification System",
+        "description": "Implement backend logic for registering device tokens and sending APNs, and integrate push notification capabilities into the iOS client.",
+        "details": "Backend: `devices` table, `POST /devices/register` for APNs token, logic to send push notifications via APNs when recipient is offline. iOS: Register for remote notifications, send device token to backend, handle incoming push notifications (foreground/background) to open chat and fetch new messages.",
+        "testStrategy": "Test sending messages to an offline device, verify push notification delivery, test tapping notification to open app and load chat.",
+        "priority": "medium",
+        "dependencies": [
+          34,
+          35
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Backend - Implement Device Token Registration API",
+            "description": "Create the `devices` database table and implement the `POST /devices/register` API endpoint to securely receive and store APNs device tokens.",
+            "dependencies": [],
+            "details": "Define `devices` table schema (e.g., `user_id`, `device_token`, `platform`, `last_updated`). Implement `POST /devices/register` to save/update tokens, ensuring idempotency and security.",
+            "status": "pending",
+            "testStrategy": "Unit tests for API endpoint, verify token storage and updates in the `devices` table for various scenarios (new registration, token refresh)."
+          },
+          {
+            "id": 2,
+            "title": "iOS - Register for Notifications & Send Token to Backend",
+            "description": "Implement iOS client-side logic to register for remote push notifications and send the obtained APNs device token to the backend's registration endpoint.",
+            "dependencies": [
+              "37.1"
+            ],
+            "details": "Call `registerForRemoteNotifications()` on app launch. Implement `application(_:didRegisterForRemoteNotificationsWithDeviceToken:)` to extract the token and make an API call to `POST /devices/register`. Handle `application(_:didFailToRegisterForRemoteNotificationsWithError:)` for error logging.",
+            "status": "pending",
+            "testStrategy": "Verify app prompts for notification permission on first launch. Check network requests to the backend and confirm the device token appears correctly in the `devices` table after registration."
+          },
+          {
+            "id": 3,
+            "title": "Backend - Implement APNs Sending Logic",
+            "description": "Develop backend logic to determine when a user is offline and send targeted APNs push notifications using their stored device tokens.",
+            "dependencies": [
+              "37.1"
+            ],
+            "details": "Integrate with APNs provider (e.g., using a suitable library). Implement logic to query the `devices` table for the recipient's token when a message is sent and the recipient is offline. Construct and send an appropriate APNs payload (alert, sound, badge, `content-available` for background updates).",
+            "status": "pending",
+            "testStrategy": "Simulate an offline user sending a message from another device. Verify that the backend makes a successful APNs request with the correct payload and device token."
+          },
+          {
+            "id": 4,
+            "title": "iOS - Handle Incoming Push Notifications",
+            "description": "Implement iOS client-side logic to receive and process incoming push notifications, both in foreground and background states, to open the relevant chat and fetch new messages.",
+            "dependencies": [
+              "37.3"
+            ],
+            "details": "Implement `userNotificationCenter(_:willPresent:withCompletionHandler:)` for foreground notifications to display alerts. Implement `application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` for background/inactive states. Parse the notification payload, navigate to the specific chat screen, and trigger message fetching (leveraging Task 39's sync mechanism if applicable).",
+            "status": "pending",
+            "testStrategy": "Send push notifications manually (e.g., via a push notification testing tool or backend trigger) to an iOS device. Verify app behavior: alert display, navigation to chat, and successful fetching of new messages in foreground, background, and killed states."
+          },
+          {
+            "id": 5,
+            "title": "End-to-End Push Notification System Testing & Integration",
+            "description": "Conduct comprehensive end-to-end testing of the entire push notification flow, from message sending to notification delivery and app interaction, and ensure robust integration.",
+            "dependencies": [
+              "37.2",
+              "37.4"
+            ],
+            "details": "Perform full cycle testing: Send a message to an offline device, verify push notification delivery to the iOS client. Test tapping the notification from various app states (killed, background, foreground) to ensure the app opens correctly and loads the chat with new messages. Address edge cases, error handling, and performance.",
+            "status": "pending",
+            "testStrategy": "Test sending messages to an offline device, verify push notification delivery, test tapping notification to open app and load chat. Include testing for multiple devices, network conditions, and user states."
+          }
+        ]
+      },
+      {
+        "id": 38,
+        "title": "User Presence Feature",
+        "description": "Develop backend functionality to track online users via WebSocket connections and broadcast presence updates, and integrate this into the iOS UI.",
+        "details": "Backend: In-memory or Redis-based tracking of online users (connected WS sessions), broadcast `user.presence` events (online/offline). iOS: Display online/offline status in chat list/view, update UI in real-time based on presence events.",
+        "testStrategy": "Test with multiple users online/offline, verify status updates instantly across devices.",
+        "priority": "low",
+        "dependencies": [
+          34,
+          35
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Backend: Design & Implement User Presence Tracking Logic",
+            "description": "Define data structures (e.g., Redis hash or in-memory map) to store active user WebSocket sessions and their online status. Implement functions to add/remove users on connect/disconnect.",
+            "dependencies": [],
+            "details": "Choose between in-memory or Redis for tracking. Implement `addUserSession(userId, wsId)` and `removeUserSession(wsId)` functions to manage online users based on WebSocket connection IDs.",
+            "status": "pending",
+            "testStrategy": "Unit tests for presence tracking data structures and functions (add, remove, get online users)."
+          },
+          {
+            "id": 2,
+            "title": "Backend: Implement Presence Event Broadcasting",
+            "description": "Develop the mechanism to broadcast `user.presence` events (online/offline) to relevant connected clients. Define the event payload structure for presence updates.",
+            "dependencies": [
+              "38.1"
+            ],
+            "details": "Define `user.presence` event format (e.g., `{ \"type\": \"user.presence\", \"payload\": { \"userId\": \"<UUID>\", \"status\": \"online\" } }`). Implement logic to fan out these events to all or specific connected clients when a user's status changes.",
+            "status": "pending",
+            "testStrategy": "Integration tests to verify `user.presence` events are correctly formatted and sent to mock WebSocket clients upon status changes."
+          },
+          {
+            "id": 3,
+            "title": "Backend: Integrate Presence with WebSocket Lifecycle",
+            "description": "Hook the presence tracking and broadcasting logic into the WebSocket connection and disconnection lifecycle events.",
+            "dependencies": [
+              "38.1",
+              "38.2"
+            ],
+            "details": "Modify the existing WebSocket handler (from Task 34) to call presence tracking functions on `onConnect` and `onDisconnect`, and trigger `user.presence` broadcasts accordingly.",
+            "status": "pending",
+            "testStrategy": "End-to-end tests simulating user connect/disconnect via WebSocket and verifying that `user.presence` events are correctly broadcast to other connected clients."
+          },
+          {
+            "id": 4,
+            "title": "iOS: Implement Presence Event Reception and Data Model Update",
+            "description": "Configure the iOS WebSocket client to listen for and parse `user.presence` events from the backend. Update the local application data model with the received presence status.",
+            "dependencies": [
+              "38.2"
+            ],
+            "details": "Extend the existing iOS WebSocket message parsing logic to handle the `user.presence` event type. Create or update a local data store (e.g., a dictionary, Core Data, or Realm) to reflect user online/offline status.",
+            "status": "pending",
+            "testStrategy": "Unit tests for event parsing and data model updates. Integration tests with a mock backend sending presence events to verify correct data model synchronization."
+          },
+          {
+            "id": 5,
+            "title": "iOS: Integrate Presence Status into UI Components",
+            "description": "Modify relevant iOS UI components (e.g., chat list cells, user profile views) to visually display the online/offline status based on the updated presence data model.",
+            "dependencies": [
+              "38.4"
+            ],
+            "details": "Add an online indicator (e.g., a green dot, 'Online' text) to user avatars or names in chat lists and user profile views. Ensure UI updates are real-time and efficient as presence events are received.",
+            "status": "pending",
+            "testStrategy": "UI tests to verify presence indicators appear/disappear correctly. Manual testing with multiple devices to confirm real-time UI updates across different user states."
+          }
+        ]
+      },
+      {
+        "id": 39,
+        "title": "Offline Sync Mechanism",
+        "description": "Implement a backend endpoint for fetching missed messages since a timestamp, and integrate this into the iOS client to recover messages after offline periods.",
+        "details": "Backend: `GET /sync/messages?since=timestamp` endpoint to retrieve messages not yet received by a client. iOS: On app launch or reconnect, call sync endpoint, fetch missed messages, and merge them into the local database.",
+        "testStrategy": "Go offline, send messages from another device, go online, verify missed messages are synced and displayed correctly.",
+        "priority": "low",
+        "dependencies": [
+          34,
+          35
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement Backend GET /sync/messages Endpoint",
+            "description": "Develop the backend endpoint `GET /sync/messages?since=timestamp` to query and return messages that a specific client has not yet received since the provided timestamp. This involves database queries and filtering logic.",
+            "dependencies": [],
+            "details": "Create API route, implement logic to fetch messages from the database based on `since` timestamp, and filter for messages relevant to the requesting client. Ensure efficient querying and proper data serialization.",
+            "status": "pending",
+            "testStrategy": "Unit tests for the endpoint logic, verify correct message retrieval for various `since` timestamps and client IDs. Test with empty and large datasets."
+          },
+          {
+            "id": 2,
+            "title": "Test Backend Sync Endpoint and Document API",
+            "description": "Thoroughly test the newly implemented `GET /sync/messages` endpoint for correctness, performance, and edge cases. Create comprehensive API documentation for iOS client integration.",
+            "dependencies": [
+              "39.1"
+            ],
+            "details": "Write integration tests for the endpoint. Document request parameters (`since` timestamp format, client identification), response format (message structure, pagination if applicable), error codes, and expected behavior. Publish documentation for iOS team.",
+            "status": "pending",
+            "testStrategy": "Automated integration tests covering various scenarios (no messages, many messages, invalid timestamp, future timestamp, etc.). Manual testing using tools like Postman to validate documentation accuracy."
+          },
+          {
+            "id": 3,
+            "title": "iOS Client: Integrate Sync API Call",
+            "description": "Implement the logic within the iOS client to call the `GET /sync/messages?since=timestamp` endpoint. This includes determining the correct `since` timestamp (e.g., last known message timestamp or app launch time), handling network requests, and parsing the JSON response.",
+            "dependencies": [
+              "39.2"
+            ],
+            "details": "Identify trigger points for sync (app launch, app foreground, network reconnect). Implement network layer to make the GET request with appropriate headers and parameters. Parse the incoming message data from the JSON response into local data models.",
+            "status": "pending",
+            "testStrategy": "Unit tests for the API client logic. Verify correct request formation and response parsing. Simulate network errors (timeout, no connection) and server errors to ensure robust handling."
+          },
+          {
+            "id": 4,
+            "title": "iOS Client: Merge Synced Messages into Local DB and Update UI",
+            "description": "Implement the logic to merge the fetched missed messages into the iOS client's local database. This involves de-duplication, ensuring message order, and updating the relevant UI components to display the newly synced messages.",
+            "dependencies": [
+              "39.3"
+            ],
+            "details": "Logic to insert or update messages in the local Core Data/Realm/SQLite database, handling potential duplicates based on message IDs. Refresh chat views or message lists to show new messages, maintaining chronological order. Implement UI feedback during sync.",
+            "status": "pending",
+            "testStrategy": "Unit tests for database merge logic (de-duplication, ordering). Test UI updates after a simulated sync, ensuring messages appear correctly without flicker or duplicates. Verify performance with a large number of synced messages."
+          },
+          {
+            "id": 5,
+            "title": "End-to-End Offline Sync Testing and Refinement",
+            "description": "Perform comprehensive end-to-end testing of the entire offline sync mechanism, covering both backend and iOS client integration. Identify and fix any issues found during testing to ensure a seamless user experience.",
+            "dependencies": [
+              "39.1",
+              "39.2",
+              "39.3",
+              "39.4"
+            ],
+            "details": "Execute the parent task's test strategy: Go offline, send messages from another device, go online, verify missed messages are synced and displayed correctly. Test various scenarios like long offline periods, multiple missed messages, no missed messages, concurrent message sending, and app backgrounding/foregrounding.",
+            "status": "pending",
+            "testStrategy": "Manual and automated end-to-end tests. Simulate network conditions (slow, intermittent). Verify message integrity, display correctness, and user experience across different device states. Performance testing for sync duration."
+          }
+        ]
+      },
+      {
+        "id": 40,
+        "title": "Continuous Deployment & Database Migrations",
+        "description": "Establish a robust CI/CD pipeline for the backend to enable continuous deployment after each iteration, and implement a database migration strategy for schema changes.",
+        "details": "Automate build, test, and deployment process for the Vapor backend (e.g., using GitHub Actions, Render/Railway built-in CI). Implement database migration tools (e.g., Fluent migrations in Vapor) to handle schema evolution between iterations without data loss.",
+        "testStrategy": "Perform a dummy schema change and verify successful deployment and migration on staging, ensure no downtime during deployment.",
+        "priority": "medium",
+        "dependencies": [
+          32
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Research and Select CI/CD Platform & Migration Tool",
+            "description": "Evaluate available CI/CD platforms (e.g., GitHub Actions, Render/Railway built-in CI) and confirm the suitability of Vapor's Fluent migrations for schema evolution. Select the primary tools for the pipeline and migration strategy.",
+            "dependencies": [],
+            "details": "Research integration capabilities with existing deployment infrastructure (from Task 32). Document pros and cons of chosen platforms. Confirm Fluent's capabilities for non-destructive migrations and its compatibility with the chosen database (PostgreSQL).",
+            "status": "pending",
+            "testStrategy": "N/A (Research phase, outcome is a decision document or selection)."
+          },
+          {
+            "id": 2,
+            "title": "Implement Initial Database Migration Setup",
+            "description": "Integrate Vapor's Fluent migration framework into the backend project. Create a basic, non-destructive migration (e.g., adding a new column to an existing table or a dummy table) to verify the setup.",
+            "dependencies": [],
+            "details": "Add Fluent package to the Vapor project, configure database connection for migrations, create a simple 'Migration' class (e.g., 'AddDummyTable' or 'AddUserStatusColumn'), and ensure it can be run locally via 'vapor migrate'.",
+            "status": "pending",
+            "testStrategy": "Run the migration locally against a development PostgreSQL database. Verify the schema changes (e.g., new table or column) using a database client. Confirm no data loss for existing data if modifying an existing table."
+          },
+          {
+            "id": 3,
+            "title": "Configure CI/CD for Automated Build and Test",
+            "description": "Set up the chosen CI/CD platform to automatically build the Vapor backend project and execute all defined tests (unit, integration) upon code pushes or pull requests.",
+            "dependencies": [],
+            "details": "Create CI/CD workflow files (e.g., '.github/workflows/ci.yml' for GitHub Actions). Define steps for checking out code, installing Vapor dependencies, building the project, and running 'vapor test'. Ensure environment variables required for testing are securely configured.",
+            "status": "pending",
+            "testStrategy": "Push a small, non-breaking code change to a feature branch. Verify the CI pipeline triggers automatically, successfully builds the project, and all tests pass. Intentionally introduce a failing test to confirm the pipeline correctly identifies and reports failures."
+          },
+          {
+            "id": 4,
+            "title": "Integrate Database Migrations into CI/CD Workflow",
+            "description": "Modify the CI/CD pipeline to automatically apply database migrations to the staging environment before or as part of the application deployment process.",
+            "dependencies": [
+              "40.2",
+              "40.3"
+            ],
+            "details": "Add a step in the CI/CD workflow to execute 'vapor migrate' or an equivalent command against the staging database. Ensure the CI/CD environment has the necessary database credentials and connectivity to the staging database. Consider strategies for handling failed migrations or rollbacks.",
+            "status": "pending",
+            "testStrategy": "Create a new, simple dummy migration in the Vapor project. Push the code to the repository. Verify the CI/CD pipeline successfully triggers, builds, runs tests, and then applies the new migration to the staging database. Confirm the schema change is present on the staging database."
+          },
+          {
+            "id": 5,
+            "title": "Implement Automated Deployment to Staging",
+            "description": "Configure the CI/CD pipeline to automatically deploy the successfully built and tested Vapor backend application, along with applied migrations, to the staging environment.",
+            "dependencies": [
+              "40.4"
+            ],
+            "details": "Define the deployment steps in the CI/CD workflow, utilizing the chosen hosting provider's deployment mechanisms (e.g., Render/Railway built-in deployment, Docker image push and deployment). Ensure environment variables for the staging environment are correctly configured and securely passed. Verify application startup and basic API access post-deployment.",
+            "status": "pending",
+            "testStrategy": "Perform a full end-to-end test: make a small code change (e.g., add a new dummy API endpoint) and a dummy schema change. Push to the main/staging branch. Verify the CI/CD pipeline builds, tests, applies migrations, and deploys successfully to staging. Access the new API endpoint on staging to confirm functionality and verify the schema change is reflected without downtime."
+          }
+        ]
+      }
+    ],
+    "metadata": {
+      "created": "2025-08-08T17:36:58.772Z",
+      "updated": "2025-08-08T17:57:31.819Z",
+      "description": "Tasks for master context"
+    }
+  }
+}
