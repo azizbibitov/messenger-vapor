@@ -22,5 +22,8 @@ func routes(_ app: Application) throws {
             try response.content.encode(res)
             return response
         }
+        routes.post("login") { req async throws -> AuthTokenResponse in
+            try await auth.login(req)
+        }
     }
 }
