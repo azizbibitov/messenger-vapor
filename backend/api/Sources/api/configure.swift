@@ -25,6 +25,22 @@ public func configure(_ app: Application) async throws {
         app.logger.warning("JWT_SECRET not set; JWT signing will use default/none")
     }
 
+    // Auth: register JWT authenticator happens at route grouping time
+
+    // CORS
+    let cors = CORSMiddleware(configuration: .init(
+        allowedOrigin: .all,
+        allowedMethods: [.GET, .POST, .PUT, .DELETE, .OPTIONS, .PATCH],
+        allowedHeaders: [
+            .accept,
+            .authorization,
+            .contentType,
+            .origin,
+            .xRequestedWith
+        ]
+    ))
+    app.middleware.use(cors)
+
     // register routes
     try routes(app)
 }

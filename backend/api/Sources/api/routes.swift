@@ -26,4 +26,12 @@ func routes(_ app: Application) throws {
             try await auth.login(req)
         }
     }
+
+    // Protected route example: /me (requires Bearer token)
+    app.grouped(UserJWTAuthenticator()).group("me") { me in
+        me.get { req async throws -> [String: String] in
+            guard let user = req.auth.get(User.self), let id = user.id else { throw Abort(.unauthorized) }
+            return ["id": id.uuidString, "username": user.username]
+        }
+    }
 }

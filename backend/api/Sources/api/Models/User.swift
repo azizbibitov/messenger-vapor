@@ -28,3 +28,5 @@ final class User: Model, Content, @unchecked Sendable {
     }
 }
 
+extension User: Authenticatable {}
+
