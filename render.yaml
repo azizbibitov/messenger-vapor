@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: messenger-lovestory-api
+    env: docker
+    plan: free
+    region: oregon
+    dockerfilePath: backend/api/Dockerfile
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: messenger-lovestory-db
+          property: connectionString
+      - key: JWT_SECRET
+        sync: false
+
+databases:
+  - name: messenger-lovestory-db
+    plan: free
+    region: oregon
