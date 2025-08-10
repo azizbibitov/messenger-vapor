@@ -18,6 +18,17 @@ public func configure(_ app: Application) async throws {
     // Migrations
     app.migrations.add(CreateUser())
 
+    // Optional: run migrations automatically on boot when enabled
+    if Environment.get("AUTO_MIGRATE") == "true" {
+        do {
+            try await app.autoMigrate()
+            app.logger.notice("AUTO_MIGRATE completed successfully")
+        } catch {
+            app.logger.error("AUTO_MIGRATE failed: \(error.localizedDescription)")
+            throw error
+        }
+    }
+
     // Configure JWT signers (JWT 4)
     if let secret = Environment.get("JWT_SECRET") {
         app.jwt.signers.use(.hs256(key: secret))
