@@ -9,7 +9,7 @@
         "testStrategy": "Unit tests for authentication logic, integration tests for API endpoints using Postman/cURL, verify JWT generation and validation.",
         "priority": "high",
         "dependencies": [],
-        "status": "in-progress",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -17,7 +17,7 @@
             "description": "Initialize the Vapor project, set up the basic application structure, and configure initial dependencies for the backend.",
             "dependencies": [],
             "details": "Use `vapor new` command to create the project. Configure `Package.swift` for Vapor and Fluent. Set up `configure.swift` and `app.swift` for basic server startup and routing.\n<info added on 2025-08-08T17:57:31.601Z>\nImplementation plan for Vapor project initialization:\n\n- Create project directory structure under `backend/` in the repo\n- Initialize a SwiftPM executable package to verify local Swift toolchain\n- Next, add Vapor dependencies to `Package.swift` and wire up `configure.swift` and `routes.swift`\n- Add base health route GET /health for smoke testing\n- Prepare local `.env` sample for `DATABASE_URL` and `JWT_SECRET`\n- Verify build locally; commit initial scaffold\n\nCommands to run:\n- mkdir -p backend && cd backend\n- swift package init --type executable --name MessengerBackend\n- swift build\n\nOutcome:\n- A compiling Swift package in `backend/` ready to add Vapor\n- Next step in this subtask: add Vapor dependency and minimal bootstrap (will follow immediately after skeleton is in place)\n</info added on 2025-08-08T17:57:31.601Z>",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Verify the Vapor server starts successfully and a basic 'Hello, world!' route is accessible via a web browser or cURL."
           },
           {
@@ -27,8 +27,8 @@
             "dependencies": [
               "31.1"
             ],
-            "details": "Create a `User` model conforming to `Content`, `Model`, and `Authenticatable`. Implement a `UserMigration` to create the `users` table with fields such as `id`, `username`, and `password_hash`. Configure Fluent to connect to PostgreSQL.",
-            "status": "pending",
+            "details": "Create a `User` model conforming to `Content`, `Model`, and `Authenticatable`. Implement a `UserMigration` to create the `users` table with fields such as `id`, `username`, and `password_hash`. Configure Fluent to connect to PostgreSQL.\n<info added on 2025-08-08T18:42:02.719Z>\n*   Add `vapor/fluent` and `vapor/fluent-postgres-driver` dependencies to `backend/api/Package.swift`.\n*   Create `Sources/api/Models/User.swift` defining the `User` model with `id` as `UUID`, `username` as `String` (unique), `passwordHash` as `String`, and `timestamps`.\n*   Create `Sources/api/Migrations/CreateUser.swift` to set up the `users` table, including necessary indexes and constraints (e.g., unique for username).\n*   Update `Sources/api/configure.swift` to:\n    *   Import `Fluent` and `FluentPostgresDriver`.\n    *   Read the `DATABASE_URL` environment variable.\n    *   Configure Fluent to use PostgreSQL via `.postgres(url:)`.\n    *   Register the `CreateUser` migration.\n    *   Ensure migrations are not run automatically in production; instead, expose `vapor run migrate` for manual execution.\n*   Update `.env.example` to include `DATABASE_URL` and `JWT_SECRET`.\n*   Build the project to verify successful compilation.\n</info added on 2025-08-08T18:42:02.719Z>",
+            "status": "done",
             "testStrategy": "Run database migrations and verify that the `users` table is created correctly in the PostgreSQL database. Write unit tests for the `User` model's properties and relationships."
           },
           {
@@ -38,8 +38,8 @@
             "dependencies": [
               "31.2"
             ],
-            "details": "Create a `AuthRegisterRequest` DTO for incoming registration data. Implement the `POST /auth/register` route. Hash the user's password using Bcrypt before saving the new user to the `users` table.",
-            "status": "pending",
+            "details": "Create a `AuthRegisterRequest` DTO for incoming registration data. Implement the `POST /auth/register` route. Hash the user's password using Bcrypt before saving the new user to the `users` table.\n<info added on 2025-08-08T19:01:20.883Z>\nDefine an `AuthRegisterResponse` DTO (containing `id` and `username`). Ensure username uniqueness validation, returning `409 Conflict` if a duplicate username is found. Handle invalid payloads with a `400 Bad Request` response. On successful registration, return `201 Created` with the `AuthRegisterResponse` JSON. Implement the route logic within an `AuthController` and wire it in `routes.swift`.\n</info added on 2025-08-08T19:01:20.883Z>",
+            "status": "done",
             "testStrategy": "Perform integration tests on `POST /auth/register` with valid and invalid data using Postman/cURL. Verify that a new user is created in the database with a securely hashed password. Unit tests for password hashing logic."
           },
           {
@@ -49,8 +49,8 @@
             "dependencies": [
               "31.3"
             ],
-            "details": "Create an `AuthLoginRequest` DTO for login credentials. Implement the `POST /auth/login` route. Verify user credentials against the stored hashed password. Generate a JWT containing the user's ID and return it to the client upon successful login.",
-            "status": "pending",
+            "details": "Create an `AuthLoginRequest` DTO for login credentials. Implement the `POST /auth/login` route. Verify user credentials against the stored hashed password. Generate a JWT containing the user's ID and return it to the client upon successful login.\n<info added on 2025-08-09T07:10:31.341Z>\n{\n  \"status\": \"ok\"\n}\n</info added on 2025-08-09T07:10:31.341Z>",
+            "status": "done",
             "testStrategy": "Perform integration tests on `POST /auth/login` with correct and incorrect credentials. Verify that a valid JWT is returned for successful logins and appropriate error responses for failures. Unit tests for JWT generation logic."
           },
           {
@@ -61,7 +61,7 @@
               "31.4"
             ],
             "details": "Create a `JWTAuthenticationMiddleware` to validate incoming JWTs and authenticate users for subsequent requests on protected routes. Apply this middleware to relevant API groups. Configure CORS middleware in `configure.swift` to allow requests from the iOS client's origin.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Perform integration tests on a protected route using valid, invalid, and missing JWTs to verify access control. Test API requests from an iOS client (or simulated origin) to ensure CORS headers are correctly applied and requests are not blocked due to cross-origin policies."
           }
         ]
@@ -83,8 +83,8 @@
             "title": "Research and Select Hosting Provider",
             "description": "Evaluate potential hosting providers (e.g., Render, Railway, Fly.io) based on cost, features, ease of use for Vapor/PostgreSQL, and select the most suitable one.",
             "dependencies": [],
-            "details": "Compare pricing models, managed PostgreSQL offerings, Docker/build process support, and developer experience for Vapor applications. Document the chosen provider and rationale.",
-            "status": "pending",
+            "details": "Compare pricing models, managed PostgreSQL offerings, Docker/build process support, and developer experience for Vapor applications. Document the chosen provider and rationale.\n<info added on 2025-08-10T12:02:21.716Z>\nDecision: Use Fly.io for hosting the Vapor backend.\n\nRationale:\n- Simple Docker-based deploys; our repo already has a production-ready Dockerfile exposing 8080\n- Global regions, HTTPS, and autoscaling via Machines\n- Managed Postgres via `fly postgres create` + `fly postgres attach` (sets DATABASE_URL)\n- Easy secrets management for `JWT_SECRET`\n\nPlanned setup steps:\n1) Install and auth: `brew install flyctl` -> `flyctl auth login`\n2) Initialize app in `backend/api`: `flyctl launch --name messenger-lovestory-api --region iad --no-deploy --copy-config`\n3) Provision DB: `flyctl postgres create --name messenger-lovestory-db --region iad --vm-size shared-cpu-1x --initial-cluster-size 1 --volume-size 10`\n4) Attach DB to app (sets DATABASE_URL): `flyctl postgres attach messenger-lovestory-db --app messenger-lovestory-api`\n5) Set JWT secret: `flyctl secrets set JWT_SECRET=... --app messenger-lovestory-api`\n6) Deploy: `flyctl deploy`\n7) Run migrations on the app: `flyctl ssh console -a messenger-lovestory-api -C \"/app/api migrate -y\"`\n8) Verify health: `curl https://<app>.fly.dev/health`\n\nRepo changes:\n- Add `backend/api/fly.toml` with `http_service` on port 8080, HTTPS enforced, and Machines autoscaling\n- Add `backend/api/.env.example` placeholders for `DATABASE_URL` and `JWT_SECRET`\n</info added on 2025-08-10T12:02:21.716Z>\n<info added on 2025-08-10T12:48:37.421Z>\n<info added on 2024-07-30T12:00:00.000Z>\nDecision: Use Render (free tier) for hosting the Vapor backend.\n\nRationale:\n- Free tier suitable for MVP, HTTPS out of the box\n- Simple Docker deploy using existing `backend/api/Dockerfile`\n- Managed Postgres with automatic `DATABASE_URL` wiring via Blueprint\n\nRender plan:\n1) Auth: `render login`\n2) Blueprint at repo root `render.yaml` defines:\n   - web service (env: docker) building from `backend/api/Dockerfile`, healthCheck `/health`\n   - free Postgres database, injects `DATABASE_URL` into the service\n   - `JWT_SECRET` provided via env var/secret\n3) Launch: `render blueprint launch -f render.yaml`\n4) After first deploy, run migrations via Render shell or one-off command\n5) Verify public URL: GET /health; test /auth endpoints\n\nRepo changes:\n- Remove Fly.io `backend/api/fly.toml`\n- Add `render.yaml` at repo root\n</info added on 2024-07-30T12:00:00.000Z>\n</info added on 2025-08-10T12:48:37.421Z>",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -94,8 +94,8 @@
             "dependencies": [
               "32.1"
             ],
-            "details": "Create a new PostgreSQL database, configure initial settings, and obtain connection credentials (host, port, user, password, database name).",
-            "status": "pending",
+            "details": "Create a new PostgreSQL database, configure initial settings, and obtain connection credentials (host, port, user, password, database name).\n<info added on 2025-08-10T12:32:02.671Z>\nUse `flyctl postgres create --name messenger-lovestory-db --region iad --vm-size shared-cpu-1x --initial-cluster-size 1 --volume-size 10` to create the database. Then, attach it to the application using `flyctl postgres attach messenger-lovestory-db --app messenger-lovestory-api` to automatically configure connection credentials as environment variables for the `messenger-lovestory-api` app.\n</info added on 2025-08-10T12:32:02.671Z>\n<info added on 2025-08-10T12:49:23.425Z>\nUpdate: Switching to Render for database provisioning.\nPlan for Render PostgreSQL:\n- The database `messenger-lovestory-db` will be defined in `render.yaml` under the `databases:` section (using the free plan).\n- The web service's `DATABASE_URL` environment variable will be automatically wired using `fromDatabase: connectionString` from the `render.yaml` blueprint.\n- Deployment steps after `render login`:\n  1. Launch the blueprint: `render blueprint launch -f render.yaml`\n  2. Set the `JWT_SECRET` environment variable for the `messenger-lovestory-api` service: `render env set JWT_SECRET=dev-secret --service messenger-lovestory-api`\n  3. After the initial deployment, run database migrations by opening a shell (via dashboard or CLI) into the container and executing: `/app/api migrate -y`\n  4. Verify the deployment by checking the public URL: perform a `GET /health` request and test the `/auth` endpoints.\n</info added on 2025-08-10T12:49:23.425Z>",
+            "status": "in-progress",
             "testStrategy": "Verify connectivity to the database from a local client (e.g., psql or a GUI tool)."
           },
           {
@@ -690,7 +690,7 @@
     ],
     "metadata": {
       "created": "2025-08-08T17:36:58.772Z",
-      "updated": "2025-08-08T17:57:31.819Z",
+      "updated": "2025-08-10T12:31:39.730Z",
       "description": "Tasks for master context"
     }
   }
