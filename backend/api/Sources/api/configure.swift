@@ -9,8 +9,29 @@ public func configure(_ app: Application) async throws {
     // app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
 
     // Database configuration (PostgreSQL via DATABASE_URL)
-    if let databaseURL = Environment.get("DATABASE_URL"), let url = URL(string: databaseURL) {
-        try app.databases.use(.postgres(url: url), as: .psql)
+    if let rawDatabaseURL = Environment.get("DATABASE_URL") {
+        if var components = URLComponents(string: rawDatabaseURL) {
+            let host = components.host ?? ""
+            let isInternal = host.hasSuffix(".internal")
+            let hasSSLParam = (components.queryItems ?? []).contains { $0.name.lowercased() == "sslmode" }
+
+            // If using an external DB host, ensure TLS is required to avoid handshake failures on Render
+            if !isInternal && !hasSSLParam {
+                var items = components.queryItems ?? []
+                items.append(URLQueryItem(name: "sslmode", value: "require"))
+                components.queryItems = items
+            }
+
+            if let finalURL = components.url {
+                try app.databases.use(.postgres(url: finalURL), as: .psql)
+                let sslMode: String = (components.queryItems ?? []).first { $0.name.lowercased() == "sslmode" }?.value ?? "(none)"
+                app.logger.notice("Configured database host=\(host) sslmode=\(sslMode)")
+            } else {
+                app.logger.error("Failed to construct DATABASE_URL from components; database not configured")
+            }
+        } else {
+            app.logger.error("Invalid DATABASE_URL format; database not configured")
+        }
     } else {
         app.logger.warning("DATABASE_URL not set; database not configured")
     }
@@ -51,6 +72,14 @@ public func configure(_ app: Application) async throws {
         ]
     ))
     app.middleware.use(cors)
+
+    // Respect platform-provided PORT (e.g., Render) instead of hard-coding 8080
+    if let portString = Environment.get("PORT"), let port = Int(portString) {
+        app.http.server.configuration.port = port
+        app.logger.notice("Server binding to PORT=\(port)")
+    } else {
+        app.logger.notice("PORT not set; defaulting to 8080")
+    }
 
     // register routes
     try routes(app)
