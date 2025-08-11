@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: messenger-lovestory-api
+    name: messenger-vapor
     env: docker
     plan: free
     region: oregon
@@ -10,12 +10,14 @@ services:
     envVars:
       - key: DATABASE_URL
         fromDatabase:
-          name: messenger-lovestory-db
-          property: connectionString
+          name: messenger-vapor-db
+          property: internalConnectionString
       - key: JWT_SECRET
-        sync: false
+        value: oVuzzt4wzNPtHqWePawHyhoXvpV1AKOKFSMDTqRgSkA=
+      - key: AUTO_MIGRATE
+        value: "true"
 
 databases:
-  - name: messenger-lovestory-db
+  - name: messenger-vapor-db
     plan: free
     region: oregon
