@@ -1,0 +1,43 @@
+# Task ID: 39
+# Title: Offline Sync Mechanism
+# Status: pending
+# Dependencies: 34, 35
+# Priority: low
+# Description: Implement a backend endpoint for fetching missed messages since a timestamp, and integrate this into the iOS client to recover messages after offline periods.
+# Details:
+Backend: `GET /sync/messages?since=timestamp` endpoint to retrieve messages not yet received by a client. iOS: On app launch or reconnect, call sync endpoint, fetch missed messages, and merge them into the local database.
+
+# Test Strategy:
+Go offline, send messages from another device, go online, verify missed messages are synced and displayed correctly.
+
+# Subtasks:
+## 1. Implement Backend GET /sync/messages Endpoint [pending]
+### Dependencies: None
+### Description: Develop the backend endpoint `GET /sync/messages?since=timestamp` to query and return messages that a specific client has not yet received since the provided timestamp. This involves database queries and filtering logic.
+### Details:
+Create API route, implement logic to fetch messages from the database based on `since` timestamp, and filter for messages relevant to the requesting client. Ensure efficient querying and proper data serialization.
+
+## 2. Test Backend Sync Endpoint and Document API [pending]
+### Dependencies: 39.1
+### Description: Thoroughly test the newly implemented `GET /sync/messages` endpoint for correctness, performance, and edge cases. Create comprehensive API documentation for iOS client integration.
+### Details:
+Write integration tests for the endpoint. Document request parameters (`since` timestamp format, client identification), response format (message structure, pagination if applicable), error codes, and expected behavior. Publish documentation for iOS team.
+
+## 3. iOS Client: Integrate Sync API Call [pending]
+### Dependencies: 39.2
+### Description: Implement the logic within the iOS client to call the `GET /sync/messages?since=timestamp` endpoint. This includes determining the correct `since` timestamp (e.g., last known message timestamp or app launch time), handling network requests, and parsing the JSON response.
+### Details:
+Identify trigger points for sync (app launch, app foreground, network reconnect). Implement network layer to make the GET request with appropriate headers and parameters. Parse the incoming message data from the JSON response into local data models.
+
+## 4. iOS Client: Merge Synced Messages into Local DB and Update UI [pending]
+### Dependencies: 39.3
+### Description: Implement the logic to merge the fetched missed messages into the iOS client's local database. This involves de-duplication, ensuring message order, and updating the relevant UI components to display the newly synced messages.
+### Details:
+Logic to insert or update messages in the local Core Data/Realm/SQLite database, handling potential duplicates based on message IDs. Refresh chat views or message lists to show new messages, maintaining chronological order. Implement UI feedback during sync.
+
+## 5. End-to-End Offline Sync Testing and Refinement [pending]
+### Dependencies: 39.1, 39.2, 39.3, 39.4
+### Description: Perform comprehensive end-to-end testing of the entire offline sync mechanism, covering both backend and iOS client integration. Identify and fix any issues found during testing to ensure a seamless user experience.
+### Details:
+Execute the parent task's test strategy: Go offline, send messages from another device, go online, verify missed messages are synced and displayed correctly. Test various scenarios like long offline periods, multiple missed messages, no missed messages, concurrent message sending, and app backgrounding/foregrounding.
+

@@ -1,0 +1,43 @@
+# Task ID: 38
+# Title: User Presence Feature
+# Status: pending
+# Dependencies: 34, 35
+# Priority: low
+# Description: Develop backend functionality to track online users via WebSocket connections and broadcast presence updates, and integrate this into the iOS UI.
+# Details:
+Backend: In-memory or Redis-based tracking of online users (connected WS sessions), broadcast `user.presence` events (online/offline). iOS: Display online/offline status in chat list/view, update UI in real-time based on presence events.
+
+# Test Strategy:
+Test with multiple users online/offline, verify status updates instantly across devices.
+
+# Subtasks:
+## 1. Backend: Design & Implement User Presence Tracking Logic [pending]
+### Dependencies: None
+### Description: Define data structures (e.g., Redis hash or in-memory map) to store active user WebSocket sessions and their online status. Implement functions to add/remove users on connect/disconnect.
+### Details:
+Choose between in-memory or Redis for tracking. Implement `addUserSession(userId, wsId)` and `removeUserSession(wsId)` functions to manage online users based on WebSocket connection IDs.
+
+## 2. Backend: Implement Presence Event Broadcasting [pending]
+### Dependencies: 38.1
+### Description: Develop the mechanism to broadcast `user.presence` events (online/offline) to relevant connected clients. Define the event payload structure for presence updates.
+### Details:
+Define `user.presence` event format (e.g., `{ "type": "user.presence", "payload": { "userId": "<UUID>", "status": "online" } }`). Implement logic to fan out these events to all or specific connected clients when a user's status changes.
+
+## 3. Backend: Integrate Presence with WebSocket Lifecycle [pending]
+### Dependencies: 38.1, 38.2
+### Description: Hook the presence tracking and broadcasting logic into the WebSocket connection and disconnection lifecycle events.
+### Details:
+Modify the existing WebSocket handler (from Task 34) to call presence tracking functions on `onConnect` and `onDisconnect`, and trigger `user.presence` broadcasts accordingly.
+
+## 4. iOS: Implement Presence Event Reception and Data Model Update [pending]
+### Dependencies: 38.2
+### Description: Configure the iOS WebSocket client to listen for and parse `user.presence` events from the backend. Update the local application data model with the received presence status.
+### Details:
+Extend the existing iOS WebSocket message parsing logic to handle the `user.presence` event type. Create or update a local data store (e.g., a dictionary, Core Data, or Realm) to reflect user online/offline status.
+
+## 5. iOS: Integrate Presence Status into UI Components [pending]
+### Dependencies: 38.4
+### Description: Modify relevant iOS UI components (e.g., chat list cells, user profile views) to visually display the online/offline status based on the updated presence data model.
+### Details:
+Add an online indicator (e.g., a green dot, 'Online' text) to user avatars or names in chat lists and user profile views. Ensure UI updates are real-time and efficient as presence events are received.
+

@@ -1,0 +1,43 @@
+# Task ID: 36
+# Title: Delivery & Read Receipts Implementation
+# Status: pending
+# Dependencies: 34, 35
+# Priority: medium
+# Description: Extend the backend to track message delivery and read status, and update the iOS client to display these indicators and send read events.
+# Details:
+Backend: `message_deliveries` table, store `delivered` timestamp on send, handle `message.read` event to update `read` timestamp. iOS: Add delivery/read indicators (e.g., single/double checkmarks, eye icon) in chat UI, send `message.read` event when a message is viewed.
+
+# Test Strategy:
+Manual testing: send message, verify delivery indicator; open chat, verify read indicator on sender's side.
+
+# Subtasks:
+## 1. Backend - Message Status Schema & Delivery Logic [pending]
+### Dependencies: None
+### Description: Modify the `messages` table to include `delivered_at` and `read_at` timestamp columns. Update the message sending logic to set `delivered_at` when a message is successfully processed and stored, and broadcast this delivery status to the sender.
+### Details:
+Add `delivered_at TIMESTAMP NULL` and `read_at TIMESTAMP NULL` to the `messages` table. In the message creation endpoint/WebSocket handler, set `delivered_at = NOW()` upon successful persistence. Broadcast a `message.delivered` event to the sender's client via WebSocket.
+
+## 2. Backend - Read Receipt Event Handling & Broadcasting [pending]
+### Dependencies: 36.1
+### Description: Implement a WebSocket handler for `message.read` events from clients. Upon receiving, update the `read_at` timestamp for the specified message in the database and broadcast a `message.read` event to the sender.
+### Details:
+Create a new WebSocket message type handler for `message.read` events. Validate message ID and user permissions. Update `messages.read_at` for the given message ID. Broadcast a `message.read` event (e.g., `{ type: 'message.read', messageId: '...', readAt: '...' }`) to the sender's active WebSocket session.
+
+## 3. iOS Client - Send Read Events [pending]
+### Dependencies: 36.2
+### Description: Implement logic in the iOS chat view to detect when messages become visible to the user and send `message.read` events to the backend via WebSocket for unread messages.
+### Details:
+In `ChatViewController`, observe `UITableView` or `UICollectionView` scroll events. When a message cell enters the visible rect and is an unread message from the other user, send a `message.read` WebSocket event (e.g., `{ type: 'message.read', messageId: '...' }`). Debounce or batch these events to avoid excessive network traffic.
+
+## 4. iOS Client - Display Delivery Indicators [pending]
+### Dependencies: 36.1
+### Description: Update the iOS chat UI to display delivery indicators (e.g., single checkmark for sent, double checkmark for delivered) based on message status.
+### Details:
+Modify `MessageCell` to include an icon for delivery status. Update message models to store `delivered_at` status. On receiving `message.delivered` WebSocket events or when fetching messages, update the UI to show the appropriate indicator. Initially, show a pending indicator, then a single checkmark for sent, then a double checkmark for delivered.
+
+## 5. iOS Client - Display Read Indicators & Real-time Updates [pending]
+### Dependencies: 36.2, 36.4
+### Description: Update the iOS chat UI to display read indicators (e.g., blue double checkmark or eye icon) and update these indicators in real-time based on `message.read` events from the backend.
+### Details:
+Modify `MessageCell` to include an icon for read status, potentially overriding the delivered icon. Update message models to store `read_at` status. On receiving `message.read` WebSocket events, update the UI for the corresponding message to show the read indicator.
+

@@ -1,0 +1,83 @@
+# Task ID: 31
+# Title: Backend Core Setup & Authentication
+# Status: done
+# Dependencies: None
+# Priority: high
+# Description: Set up Vapor project, define PostgreSQL schema for users, implement user registration and login endpoints with JWT authentication, and configure CORS.
+# Details:
+Vapor project initialization, `users` table creation, `POST /auth/register`, `POST /auth/login` API implementation, JWT token generation and validation middleware, CORS configuration for iOS client requests.
+
+# Test Strategy:
+Unit tests for authentication logic, integration tests for API endpoints using Postman/cURL, verify JWT generation and validation.
+
+# Subtasks:
+## 1. Vapor Project Initialization & Basic Setup [done]
+### Dependencies: None
+### Description: Initialize the Vapor project, set up the basic application structure, and configure initial dependencies for the backend.
+### Details:
+Use `vapor new` command to create the project. Configure `Package.swift` for Vapor and Fluent. Set up `configure.swift` and `app.swift` for basic server startup and routing.
+<info added on 2025-08-08T17:57:31.601Z>
+Implementation plan for Vapor project initialization:
+
+- Create project directory structure under `backend/` in the repo
+- Initialize a SwiftPM executable package to verify local Swift toolchain
+- Next, add Vapor dependencies to `Package.swift` and wire up `configure.swift` and `routes.swift`
+- Add base health route GET /health for smoke testing
+- Prepare local `.env` sample for `DATABASE_URL` and `JWT_SECRET`
+- Verify build locally; commit initial scaffold
+
+Commands to run:
+- mkdir -p backend && cd backend
+- swift package init --type executable --name MessengerBackend
+- swift build
+
+Outcome:
+- A compiling Swift package in `backend/` ready to add Vapor
+- Next step in this subtask: add Vapor dependency and minimal bootstrap (will follow immediately after skeleton is in place)
+</info added on 2025-08-08T17:57:31.601Z>
+
+## 2. User Data Model & Database Migration [done]
+### Dependencies: 31.1
+### Description: Define the `User` data model using Fluent ORM and create the necessary PostgreSQL schema for users through database migrations.
+### Details:
+Create a `User` model conforming to `Content`, `Model`, and `Authenticatable`. Implement a `UserMigration` to create the `users` table with fields such as `id`, `username`, and `password_hash`. Configure Fluent to connect to PostgreSQL.
+<info added on 2025-08-08T18:42:02.719Z>
+*   Add `vapor/fluent` and `vapor/fluent-postgres-driver` dependencies to `backend/api/Package.swift`.
+*   Create `Sources/api/Models/User.swift` defining the `User` model with `id` as `UUID`, `username` as `String` (unique), `passwordHash` as `String`, and `timestamps`.
+*   Create `Sources/api/Migrations/CreateUser.swift` to set up the `users` table, including necessary indexes and constraints (e.g., unique for username).
+*   Update `Sources/api/configure.swift` to:
+    *   Import `Fluent` and `FluentPostgresDriver`.
+    *   Read the `DATABASE_URL` environment variable.
+    *   Configure Fluent to use PostgreSQL via `.postgres(url:)`.
+    *   Register the `CreateUser` migration.
+    *   Ensure migrations are not run automatically in production; instead, expose `vapor run migrate` for manual execution.
+*   Update `.env.example` to include `DATABASE_URL` and `JWT_SECRET`.
+*   Build the project to verify successful compilation.
+</info added on 2025-08-08T18:42:02.719Z>
+
+## 3. User Registration Endpoint Implementation [done]
+### Dependencies: 31.2
+### Description: Implement the API endpoint for new user registration, including secure password hashing and saving user data to the database.
+### Details:
+Create a `AuthRegisterRequest` DTO for incoming registration data. Implement the `POST /auth/register` route. Hash the user's password using Bcrypt before saving the new user to the `users` table.
+<info added on 2025-08-08T19:01:20.883Z>
+Define an `AuthRegisterResponse` DTO (containing `id` and `username`). Ensure username uniqueness validation, returning `409 Conflict` if a duplicate username is found. Handle invalid payloads with a `400 Bad Request` response. On successful registration, return `201 Created` with the `AuthRegisterResponse` JSON. Implement the route logic within an `AuthController` and wire it in `routes.swift`.
+</info added on 2025-08-08T19:01:20.883Z>
+
+## 4. User Login Endpoint & JWT Generation [done]
+### Dependencies: 31.3
+### Description: Implement the API endpoint for user login, authenticate user credentials, and generate a JSON Web Token (JWT) upon successful authentication.
+### Details:
+Create an `AuthLoginRequest` DTO for login credentials. Implement the `POST /auth/login` route. Verify user credentials against the stored hashed password. Generate a JWT containing the user's ID and return it to the client upon successful login.
+<info added on 2025-08-09T07:10:31.341Z>
+{
+  "status": "ok"
+}
+</info added on 2025-08-09T07:10:31.341Z>
+
+## 5. JWT Authentication Middleware & CORS Configuration [done]
+### Dependencies: 31.4
+### Description: Implement middleware for validating JWTs on protected routes and configure Cross-Origin Resource Sharing (CORS) to allow requests from the iOS client.
+### Details:
+Create a `JWTAuthenticationMiddleware` to validate incoming JWTs and authenticate users for subsequent requests on protected routes. Apply this middleware to relevant API groups. Configure CORS middleware in `configure.swift` to allow requests from the iOS client's origin.
+

@@ -76,7 +76,7 @@
         "dependencies": [
           31
         ],
-        "status": "pending",
+        "status": "deferred",
         "subtasks": [
           {
             "id": 1,
@@ -143,10 +143,9 @@
         "testStrategy": "Manual testing of sign-up/login flows, verify token storage in Keychain, ensure navigation works correctly with the live backend.",
         "priority": "high",
         "dependencies": [
-          31,
-          32
+          31
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -154,7 +153,7 @@
             "description": "Create the Xcode project, configure basic settings, and establish the initial project structure for the iOS authentication client.",
             "dependencies": [],
             "details": "Create the iOS Xcode project, configure basic app settings (e.g., bundle ID, display name), and set up initial file structure (e.g., folders for Views, ViewModels, Services, Networking).",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Verify the project compiles successfully without errors and runs on a simulator or device, displaying a blank initial screen."
           },
           {
@@ -165,7 +164,7 @@
               "33.1"
             ],
             "details": "Build the `Sign Up` and `Login` views using SwiftUI or UIKit, including necessary input fields for username/email and password, along with corresponding action buttons. Ensure basic UI/UX design principles are followed.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Manually verify that all UI elements are present, correctly laid out, and respond appropriately to user interactions (e.g., keyboard appearance, text input)."
           },
           {
@@ -176,7 +175,7 @@
               "33.1"
             ],
             "details": "Create a Swift `APIClient` class or struct capable of making `POST` requests to `/auth/register` and `/auth/login` endpoints. Implement robust request/response serialization and deserialization (e.g., JSON encoding/decoding) and basic error handling.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Use mock data or a local test server to verify the API client can correctly form requests and parse responses for both registration and login operations."
           },
           {
@@ -187,7 +186,7 @@
               "33.3"
             ],
             "details": "Utilize `KeychainServices` to securely store the received JWT token after successful registration or login. Implement methods to retrieve the token for subsequent authenticated API calls and to securely delete it upon user logout.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "After a successful login/signup, verify the token is stored in Keychain. After app restart, verify the token can be retrieved. Implement a logout flow and verify the token is correctly removed from Keychain."
           },
           {
@@ -200,7 +199,7 @@
               "33.4"
             ],
             "details": "Integrate the `Sign Up` and `Login` UIs with the `APIClient` calls. Upon successful authentication, securely store the JWT token and navigate the user to a placeholder view. Implement error handling to display appropriate messages for failed attempts.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Perform manual testing of the full sign-up and login flows with a live backend. Verify successful navigation to the placeholder view. Test with invalid credentials to ensure error messages are displayed correctly. Verify token persistence across app launches and proper logout functionality."
           }
         ]
@@ -212,9 +211,7 @@
         "details": "`conversations`, `messages`, `conversation_participants` table creation. `GET /conversations`, `GET /messages?conversationId=xxx` REST APIs. WebSocket endpoint `/ws` with token authentication, message saving, and broadcasting `message.created` events.",
         "testStrategy": "Unit tests for data models, integration tests for REST endpoints, WebSocket client testing (e.g., Postman/websocat) for connection, send, and receive.",
         "priority": "high",
-        "dependencies": [
-          32
-        ],
+        "dependencies": [],
         "status": "pending",
         "subtasks": [
           {
@@ -223,7 +220,7 @@
             "description": "Create the necessary database tables (`conversations`, `messages`, `conversation_participants`) and define their relationships and columns.",
             "dependencies": [],
             "details": "Define `conversations` table (e.g., `id`, `name`, `type`), `messages` table (e.g., `id`, `conversation_id`, `sender_id`, `content`, `timestamp`), and `conversation_participants` table (e.g., `conversation_id`, `user_id`). Implement migrations or schema definition in code.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Unit tests for data model definitions and basic CRUD operations on the tables."
           },
           {
@@ -234,7 +231,7 @@
               "34.1"
             ],
             "details": "Implement `GET /conversations` to list all conversations a user is part of, and `GET /messages?conversationId=xxx` to retrieve messages for a given conversation ID. Include pagination if necessary.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Integration tests for `GET /conversations` and `GET /messages` endpoints using mock data or actual database entries."
           },
           {
@@ -271,6 +268,24 @@
             "details": "Execute unit tests for data models. Run integration tests for REST endpoints. Use WebSocket clients to simulate multiple users, send messages, verify real-time updates, and test connection/disconnection scenarios. Document API endpoints and WebSocket event formats.",
             "status": "pending",
             "testStrategy": "Unit tests for data models, integration tests for REST endpoints, WebSocket client testing (e.g., Postman/websocat) for connection, send, and receive."
+          },
+          {
+            "id": 6,
+            "title": "Implement Redis-based fan-out for horizontal scaling",
+            "description": "Integrate Redis Pub/Sub to broadcast messaging events between Vapor instances so each node can deliver to its locally connected sockets.",
+            "details": "- Add Redis client to backend; configure via env.\n- Define channels keyed by userId and/or conversationId for fan-out.\n- On message save, publish event with minimal payload; subscribers deliver to relevant sockets.\n- Ensure idempotency on delivery and backpressure handling.\n- Add health checks and reconnect logic for Redis.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 34
+          },
+          {
+            "id": 7,
+            "title": "Security hardening & rate limiting",
+            "description": "Add per-user/IP rate limits and input validation for REST and WebSocket, plus CSRF/origin checks and size limits.",
+            "details": "- REST: 429 Too Many Requests with Retry-After; expose X-RateLimit-*. \n- WS: per-connection and per-user message rate; drop abusive sockets; bound message sizes.\n- Validate membership/permissions per action; sanitize content; enforce TLS.\n- Add observability for rate-limit drops.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 34
           }
         ]
       },
@@ -690,7 +705,7 @@
     ],
     "metadata": {
       "created": "2025-08-08T17:36:58.772Z",
-      "updated": "2025-08-10T12:31:39.730Z",
+      "updated": "2025-08-14T06:54:06.876Z",
       "description": "Tasks for master context"
     }
   }

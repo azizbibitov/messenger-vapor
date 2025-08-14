@@ -28,10 +28,27 @@ func routes(_ app: Application) throws {
     }
 
     // Protected route example: /me (requires Bearer token)
-    app.grouped(UserJWTAuthenticator()).group("me") { me in
+    let protected = app.grouped(UserJWTAuthenticator())
+    protected.group("me") { me in
         me.get { req async throws -> [String: String] in
             guard let user = req.auth.get(User.self), let id = user.id else { throw Abort(.unauthorized) }
             return ["id": id.uuidString, "username": user.username]
+        }
+    }
+
+    // Conversations (protected)
+    let conv = ConversationsController()
+    protected.group("conversations") { g in
+        g.get { req async throws -> [ConversationsController.ConversationItem] in
+            try await conv.list(req)
+        }
+    }
+
+    // Messages (protected)
+    let messages = MessagesController()
+    protected.group("messages") { g in
+        g.get { req async throws -> [MessagesController.MessageItem] in
+            try await messages.list(req)
         }
     }
 }

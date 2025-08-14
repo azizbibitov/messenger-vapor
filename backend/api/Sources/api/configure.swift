@@ -13,12 +13,18 @@ public func configure(_ app: Application) async throws {
         if var components = URLComponents(string: rawDatabaseURL) {
             let host = components.host ?? ""
             let isInternal = host.hasSuffix(".internal")
+            let isLocalHost = host == "localhost" || host == "127.0.0.1" || host == "host.docker.internal"
             let hasSSLParam = (components.queryItems ?? []).contains { $0.name.lowercased() == "sslmode" }
 
-            // If using an external DB host, ensure TLS is required to avoid handshake failures on Render
-            if !isInternal && !hasSSLParam {
+            // Add an explicit sslmode when not provided:
+            // - For local databases, disable TLS to avoid handshake errors
+            // - For external hosts, require TLS (e.g., Render external connections)
+            if !hasSSLParam {
                 var items = components.queryItems ?? []
-                items.append(URLQueryItem(name: "sslmode", value: "require"))
+                let sslValue = isLocalHost ? "disable" : (isInternal ? nil : "require")
+                if let sslValue {
+                    items.append(URLQueryItem(name: "sslmode", value: sslValue))
+                }
                 components.queryItems = items
             }
 
@@ -38,6 +44,9 @@ public func configure(_ app: Application) async throws {
 
     // Migrations
     app.migrations.add(CreateUser())
+    app.migrations.add(CreateConversation())
+    app.migrations.add(CreateParticipant())
+    app.migrations.add(CreateMessage())
 
     // Optional: run migrations automatically on boot when enabled
     if Environment.get("AUTO_MIGRATE") == "true" {

@@ -1,0 +1,43 @@
+# Task ID: 33
+# Title: iOS Authentication Client
+# Status: done
+# Dependencies: 31
+# Priority: high
+# Description: Create the iOS Xcode project, build user sign-up and login screens, implement API client for authentication, and securely store JWT tokens.
+# Details:
+Xcode project setup, UI/UX design for `Sign Up` and `Login` views, Swift `APIClient` for `POST /auth/register` and `POST /auth/login`, secure storage of JWT in Keychain, navigation to a placeholder view upon successful login.
+
+# Test Strategy:
+Manual testing of sign-up/login flows, verify token storage in Keychain, ensure navigation works correctly with the live backend.
+
+# Subtasks:
+## 1. iOS Project Setup [done]
+### Dependencies: None
+### Description: Create the Xcode project, configure basic settings, and establish the initial project structure for the iOS authentication client.
+### Details:
+Create the iOS Xcode project, configure basic app settings (e.g., bundle ID, display name), and set up initial file structure (e.g., folders for Views, ViewModels, Services, Networking).
+
+## 2. Authentication UI Development [done]
+### Dependencies: 33.1
+### Description: Design and implement the user interface for both the sign-up and login screens.
+### Details:
+Build the `Sign Up` and `Login` views using SwiftUI or UIKit, including necessary input fields for username/email and password, along with corresponding action buttons. Ensure basic UI/UX design principles are followed.
+
+## 3. API Client for Authentication Endpoints [done]
+### Dependencies: 33.1
+### Description: Implement the Swift API client responsible for interacting with the backend authentication endpoints for registration and login.
+### Details:
+Create a Swift `APIClient` class or struct capable of making `POST` requests to `/auth/register` and `/auth/login` endpoints. Implement robust request/response serialization and deserialization (e.g., JSON encoding/decoding) and basic error handling.
+
+## 4. Secure JWT Storage and Retrieval [done]
+### Dependencies: 33.3
+### Description: Implement secure storage of JWT tokens in the iOS Keychain and provide methods for their retrieval and deletion.
+### Details:
+Utilize `KeychainServices` to securely store the received JWT token after successful registration or login. Implement methods to retrieve the token for subsequent authenticated API calls and to securely delete it upon user logout.
+
+## 5. Integrate Authentication Flow and Navigation [done]
+### Dependencies: 33.2, 33.3, 33.4
+### Description: Connect the UI, API client, and token storage to create a complete authentication flow, including navigation upon success.
+### Details:
+Integrate the `Sign Up` and `Login` UIs with the `APIClient` calls. Upon successful authentication, securely store the JWT token and navigate the user to a placeholder view. Implement error handling to display appropriate messages for failed attempts.
+

@@ -1,0 +1,104 @@
+# Task ID: 32
+# Title: Backend Deployment Infrastructure
+# Status: deferred
+# Dependencies: 31
+# Priority: high
+# Description: Select a hosting provider, set up managed PostgreSQL, configure environment variables for secrets, and establish the initial deployment process for the Vapor backend.
+# Details:
+Research Render/Railway/Fly.io, provision PostgreSQL instance (e.g., Supabase), define and use environment variables (e.g., `JWT_SECRET`, `DATABASE_URL`), set up Dockerfile or host-specific build process, deploy and verify public API access.
+
+# Test Strategy:
+Deploy to staging environment, test all /auth endpoints from outside local network, verify HTTPS and database connectivity.
+
+# Subtasks:
+## 1. Research and Select Hosting Provider [done]
+### Dependencies: None
+### Description: Evaluate potential hosting providers (e.g., Render, Railway, Fly.io) based on cost, features, ease of use for Vapor/PostgreSQL, and select the most suitable one.
+### Details:
+Compare pricing models, managed PostgreSQL offerings, Docker/build process support, and developer experience for Vapor applications. Document the chosen provider and rationale.
+<info added on 2025-08-10T12:02:21.716Z>
+Decision: Use Fly.io for hosting the Vapor backend.
+
+Rationale:
+- Simple Docker-based deploys; our repo already has a production-ready Dockerfile exposing 8080
+- Global regions, HTTPS, and autoscaling via Machines
+- Managed Postgres via `fly postgres create` + `fly postgres attach` (sets DATABASE_URL)
+- Easy secrets management for `JWT_SECRET`
+
+Planned setup steps:
+1) Install and auth: `brew install flyctl` -> `flyctl auth login`
+2) Initialize app in `backend/api`: `flyctl launch --name messenger-lovestory-api --region iad --no-deploy --copy-config`
+3) Provision DB: `flyctl postgres create --name messenger-lovestory-db --region iad --vm-size shared-cpu-1x --initial-cluster-size 1 --volume-size 10`
+4) Attach DB to app (sets DATABASE_URL): `flyctl postgres attach messenger-lovestory-db --app messenger-lovestory-api`
+5) Set JWT secret: `flyctl secrets set JWT_SECRET=... --app messenger-lovestory-api`
+6) Deploy: `flyctl deploy`
+7) Run migrations on the app: `flyctl ssh console -a messenger-lovestory-api -C "/app/api migrate -y"`
+8) Verify health: `curl https://<app>.fly.dev/health`
+
+Repo changes:
+- Add `backend/api/fly.toml` with `http_service` on port 8080, HTTPS enforced, and Machines autoscaling
+- Add `backend/api/.env.example` placeholders for `DATABASE_URL` and `JWT_SECRET`
+</info added on 2025-08-10T12:02:21.716Z>
+<info added on 2025-08-10T12:48:37.421Z>
+<info added on 2024-07-30T12:00:00.000Z>
+Decision: Use Render (free tier) for hosting the Vapor backend.
+
+Rationale:
+- Free tier suitable for MVP, HTTPS out of the box
+- Simple Docker deploy using existing `backend/api/Dockerfile`
+- Managed Postgres with automatic `DATABASE_URL` wiring via Blueprint
+
+Render plan:
+1) Auth: `render login`
+2) Blueprint at repo root `render.yaml` defines:
+   - web service (env: docker) building from `backend/api/Dockerfile`, healthCheck `/health`
+   - free Postgres database, injects `DATABASE_URL` into the service
+   - `JWT_SECRET` provided via env var/secret
+3) Launch: `render blueprint launch -f render.yaml`
+4) After first deploy, run migrations via Render shell or one-off command
+5) Verify public URL: GET /health; test /auth endpoints
+
+Repo changes:
+- Remove Fly.io `backend/api/fly.toml`
+- Add `render.yaml` at repo root
+</info added on 2024-07-30T12:00:00.000Z>
+</info added on 2025-08-10T12:48:37.421Z>
+
+## 2. Provision Managed PostgreSQL Instance [in-progress]
+### Dependencies: 32.1
+### Description: Set up a managed PostgreSQL database instance with the selected hosting provider or a third-party service (e.g., Supabase).
+### Details:
+Create a new PostgreSQL database, configure initial settings, and obtain connection credentials (host, port, user, password, database name).
+<info added on 2025-08-10T12:32:02.671Z>
+Use `flyctl postgres create --name messenger-lovestory-db --region iad --vm-size shared-cpu-1x --initial-cluster-size 1 --volume-size 10` to create the database. Then, attach it to the application using `flyctl postgres attach messenger-lovestory-db --app messenger-lovestory-api` to automatically configure connection credentials as environment variables for the `messenger-lovestory-api` app.
+</info added on 2025-08-10T12:32:02.671Z>
+<info added on 2025-08-10T12:49:23.425Z>
+Update: Switching to Render for database provisioning.
+Plan for Render PostgreSQL:
+- The database `messenger-lovestory-db` will be defined in `render.yaml` under the `databases:` section (using the free plan).
+- The web service's `DATABASE_URL` environment variable will be automatically wired using `fromDatabase: connectionString` from the `render.yaml` blueprint.
+- Deployment steps after `render login`:
+  1. Launch the blueprint: `render blueprint launch -f render.yaml`
+  2. Set the `JWT_SECRET` environment variable for the `messenger-lovestory-api` service: `render env set JWT_SECRET=dev-secret --service messenger-lovestory-api`
+  3. After the initial deployment, run database migrations by opening a shell (via dashboard or CLI) into the container and executing: `/app/api migrate -y`
+  4. Verify the deployment by checking the public URL: perform a `GET /health` request and test the `/auth` endpoints.
+</info added on 2025-08-10T12:49:23.425Z>
+
+## 3. Configure Environment Variables for Secrets [pending]
+### Dependencies: 32.1, 32.2
+### Description: Define and securely configure environment variables for sensitive information such as database connection strings (`DATABASE_URL`) and application secrets (`JWT_SECRET`) within the chosen hosting environment.
+### Details:
+Use the hosting provider's secret management system to store `DATABASE_URL` (or its components) and `JWT_SECRET`. Ensure these variables are accessible to the deployed Vapor application.
+
+## 4. Establish Initial Deployment Process [pending]
+### Dependencies: 32.1, 32.3
+### Description: Prepare the Vapor backend application for deployment by creating a Dockerfile or configuring the host-specific build process required by the selected hosting provider.
+### Details:
+Create a `Dockerfile` for containerization or configure the build commands/scripts specific to the chosen provider (e.g., `Procfile` for Render/Railway). Ensure the build process correctly compiles and packages the Vapor application.
+
+## 5. Deploy Backend and Verify Public API Access [pending]
+### Dependencies: 32.4
+### Description: Perform the initial deployment of the Vapor backend to the chosen hosting provider and verify that public API endpoints are accessible and functional.
+### Details:
+Trigger the deployment process. Once deployed, test core API endpoints (e.g., `/auth/register`, `/auth/login` from Task 31) from outside the local network to confirm public access, HTTPS, and database connectivity.
+

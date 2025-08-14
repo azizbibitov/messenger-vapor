@@ -1,0 +1,62 @@
+# Task ID: 34
+# Title: Backend Real-Time Messaging Core
+# Status: pending
+# Dependencies: None
+# Priority: high
+# Description: Design and implement database schemas for conversations, messages, and participants, create REST endpoints for fetching conversations and messages, and establish WebSocket handling for real-time message exchange.
+# Details:
+`conversations`, `messages`, `conversation_participants` table creation. `GET /conversations`, `GET /messages?conversationId=xxx` REST APIs. WebSocket endpoint `/ws` with token authentication, message saving, and broadcasting `message.created` events.
+
+# Test Strategy:
+Unit tests for data models, integration tests for REST endpoints, WebSocket client testing (e.g., Postman/websocat) for connection, send, and receive.
+
+# Subtasks:
+## 1. Implement Database Schemas for Messaging [pending]
+### Dependencies: None
+### Description: Create the necessary database tables (`conversations`, `messages`, `conversation_participants`) and define their relationships and columns.
+### Details:
+Define `conversations` table (e.g., `id`, `name`, `type`), `messages` table (e.g., `id`, `conversation_id`, `sender_id`, `content`, `timestamp`), and `conversation_participants` table (e.g., `conversation_id`, `user_id`). Implement migrations or schema definition in code.
+
+## 2. Implement REST Endpoints for Conversations and Messages [pending]
+### Dependencies: 34.1
+### Description: Create API endpoints to fetch lists of conversations and messages within a specific conversation.
+### Details:
+Implement `GET /conversations` to list all conversations a user is part of, and `GET /messages?conversationId=xxx` to retrieve messages for a given conversation ID. Include pagination if necessary.
+
+## 3. Establish WebSocket Server with Token Authentication [pending]
+### Dependencies: None
+### Description: Configure the WebSocket endpoint, implement token-based authentication for incoming connections, and manage active WebSocket sessions.
+### Details:
+Create `/ws` WebSocket endpoint. Implement middleware or logic to validate JWT tokens from connection headers/query parameters. Store active connections, mapping user IDs to WebSocket sessions.
+
+## 4. Implement Real-Time Message Saving and Broadcasting [pending]
+### Dependencies: 34.1, 34.3
+### Description: Develop the logic for receiving new messages via WebSocket, saving them to the database, and broadcasting `message.created` events to relevant participants.
+### Details:
+On receiving a message via WebSocket, validate content, save to the `messages` table. Identify participants of the conversation and broadcast the `message.created` event (containing the new message data) to their active WebSocket sessions.
+
+## 5. Conduct Comprehensive Testing and Refinement [pending]
+### Dependencies: 34.1, 34.2, 34.3, 34.4
+### Description: Perform unit, integration, and end-to-end tests for all implemented components (database models, REST APIs, WebSocket functionality) and refine based on test results.
+### Details:
+Execute unit tests for data models. Run integration tests for REST endpoints. Use WebSocket clients to simulate multiple users, send messages, verify real-time updates, and test connection/disconnection scenarios. Document API endpoints and WebSocket event formats.
+
+## 6. Implement Redis-based fan-out for horizontal scaling [pending]
+### Dependencies: None
+### Description: Integrate Redis Pub/Sub to broadcast messaging events between Vapor instances so each node can deliver to its locally connected sockets.
+### Details:
+- Add Redis client to backend; configure via env.
+- Define channels keyed by userId and/or conversationId for fan-out.
+- On message save, publish event with minimal payload; subscribers deliver to relevant sockets.
+- Ensure idempotency on delivery and backpressure handling.
+- Add health checks and reconnect logic for Redis.
+
+## 7. Security hardening & rate limiting [pending]
+### Dependencies: None
+### Description: Add per-user/IP rate limits and input validation for REST and WebSocket, plus CSRF/origin checks and size limits.
+### Details:
+- REST: 429 Too Many Requests with Retry-After; expose X-RateLimit-*. 
+- WS: per-connection and per-user message rate; drop abusive sockets; bound message sizes.
+- Validate membership/permissions per action; sanitize content; enforce TLS.
+- Add observability for rate-limit drops.
+

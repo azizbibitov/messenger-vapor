@@ -1,0 +1,43 @@
+# Task ID: 37
+# Title: Push Notification System
+# Status: pending
+# Dependencies: 34, 35
+# Priority: medium
+# Description: Implement backend logic for registering device tokens and sending APNs, and integrate push notification capabilities into the iOS client.
+# Details:
+Backend: `devices` table, `POST /devices/register` for APNs token, logic to send push notifications via APNs when recipient is offline. iOS: Register for remote notifications, send device token to backend, handle incoming push notifications (foreground/background) to open chat and fetch new messages.
+
+# Test Strategy:
+Test sending messages to an offline device, verify push notification delivery, test tapping notification to open app and load chat.
+
+# Subtasks:
+## 1. Backend - Implement Device Token Registration API [pending]
+### Dependencies: None
+### Description: Create the `devices` database table and implement the `POST /devices/register` API endpoint to securely receive and store APNs device tokens.
+### Details:
+Define `devices` table schema (e.g., `user_id`, `device_token`, `platform`, `last_updated`). Implement `POST /devices/register` to save/update tokens, ensuring idempotency and security.
+
+## 2. iOS - Register for Notifications & Send Token to Backend [pending]
+### Dependencies: 37.1
+### Description: Implement iOS client-side logic to register for remote push notifications and send the obtained APNs device token to the backend's registration endpoint.
+### Details:
+Call `registerForRemoteNotifications()` on app launch. Implement `application(_:didRegisterForRemoteNotificationsWithDeviceToken:)` to extract the token and make an API call to `POST /devices/register`. Handle `application(_:didFailToRegisterForRemoteNotificationsWithError:)` for error logging.
+
+## 3. Backend - Implement APNs Sending Logic [pending]
+### Dependencies: 37.1
+### Description: Develop backend logic to determine when a user is offline and send targeted APNs push notifications using their stored device tokens.
+### Details:
+Integrate with APNs provider (e.g., using a suitable library). Implement logic to query the `devices` table for the recipient's token when a message is sent and the recipient is offline. Construct and send an appropriate APNs payload (alert, sound, badge, `content-available` for background updates).
+
+## 4. iOS - Handle Incoming Push Notifications [pending]
+### Dependencies: 37.3
+### Description: Implement iOS client-side logic to receive and process incoming push notifications, both in foreground and background states, to open the relevant chat and fetch new messages.
+### Details:
+Implement `userNotificationCenter(_:willPresent:withCompletionHandler:)` for foreground notifications to display alerts. Implement `application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` for background/inactive states. Parse the notification payload, navigate to the specific chat screen, and trigger message fetching (leveraging Task 39's sync mechanism if applicable).
+
+## 5. End-to-End Push Notification System Testing & Integration [pending]
+### Dependencies: 37.2, 37.4
+### Description: Conduct comprehensive end-to-end testing of the entire push notification flow, from message sending to notification delivery and app interaction, and ensure robust integration.
+### Details:
+Perform full cycle testing: Send a message to an offline device, verify push notification delivery to the iOS client. Test tapping the notification from various app states (killed, background, foreground) to ensure the app opens correctly and loads the chat with new messages. Address edge cases, error handling, and performance.
+

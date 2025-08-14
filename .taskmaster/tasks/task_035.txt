@@ -1,0 +1,43 @@
+# Task ID: 35
+# Title: iOS Real-Time Messaging UI & WS Integration
+# Status: pending
+# Dependencies: 33, 34
+# Priority: high
+# Description: Implement local database for messages, build chat list and chat view UIs, integrate WebSocket manager for real-time communication, and ensure instant UI updates.
+# Details:
+Choose and integrate local DB (GRDB/Core Data), develop `Chat List` and `Chat View` UIs, create `WebSocketManager` to connect after login, send messages via WS, receive and save messages locally, update UI instantly.
+
+# Test Strategy:
+Manual testing of chat list/view, send/receive messages between two devices, verify local message persistence and real-time UI updates.
+
+# Subtasks:
+## 1. Local Database Integration & Schema Definition [pending]
+### Dependencies: None
+### Description: Choose a local persistence framework (GRDB or Core Data) and integrate it into the project. Define the necessary database schemas for storing conversations and individual messages locally. This forms the foundational layer for persistent message storage.
+### Details:
+Research and select between GRDB and Core Data. Set up the chosen framework within the iOS project. Define data models/schemas for 'Conversation' (e.g., id, lastMessageText, lastMessageTimestamp, participants) and 'Message' (e.g., id, conversationId, senderId, text, timestamp, status, type). Implement basic CRUD operations for these entities.
+
+## 2. Chat List UI Implementation [pending]
+### Dependencies: 35.1
+### Description: Develop the user interface for displaying a list of ongoing conversations. This UI should fetch and display conversation summaries from the local database, allowing users to select a conversation to view its messages.
+### Details:
+Design and implement the 'Chat List' screen using a UITableView or UICollectionView. Populate the list by fetching existing conversations from the local database. Display relevant information for each conversation (e.g., participant names, last message snippet, timestamp). Implement navigation from a selected conversation to the 'Chat View' screen.
+
+## 3. Chat View UI & Local Message Display [pending]
+### Dependencies: 35.1, 35.2
+### Description: Implement the user interface for a specific chat conversation, displaying messages exchanged within that conversation. This subtask also includes setting up the input mechanism for composing and sending new messages, initially saving them locally.
+### Details:
+Design and implement the 'Chat View' screen using a UITableView or UICollectionView for message display. Implement an input text field and a 'Send' button. Fetch and display messages for the selected conversation from the local database. When a message is composed and sent, save it immediately to the local database with a 'sending' status.
+
+## 4. WebSocket Manager & Outgoing Message Handling [pending]
+### Dependencies: 35.3
+### Description: Create a dedicated `WebSocketManager` class responsible for establishing and maintaining a WebSocket connection with the backend after user login. Implement the logic for sending messages from the client to the server via this WebSocket connection.
+### Details:
+Implement a `WebSocketManager` singleton. Handle WebSocket connection establishment and reconnection logic. Integrate with the authentication flow to connect after successful login. Implement a method within `WebSocketManager` to send message payloads (e.g., JSON) to the backend. Connect the 'Send' button in the 'Chat View' to this WebSocket sending mechanism, updating local message status to 'sent' upon successful transmission confirmation.
+
+## 5. Real-Time Message Reception & UI Sync [pending]
+### Dependencies: 35.1, 35.3, 35.4
+### Description: Implement the logic within the `WebSocketManager` to receive incoming messages from the WebSocket. Upon reception, messages must be saved to the local database and the relevant chat UI (Chat View) must be updated instantly to reflect the new message.
+### Details:
+Implement WebSocket delegate methods to handle incoming message events. Parse the received message data. Save the new message to the local database. Utilize database observation mechanisms (e.g., NSFetchedResultsController, Combine/RxSwift with GRDB) to automatically update the 'Chat View' UI when new messages are saved locally. Ensure smooth scrolling and UI performance during real-time updates. Handle updates for 'Chat List' (e.g., last message preview).
+
